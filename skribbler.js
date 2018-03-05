@@ -3,7 +3,7 @@
 // @namespace https://rosshill.ca
 // @match *://skribbl.io/*
 // @grant none
-// @version 1.0.0
+// @version 1.0.1
 // ==/UserScript==
 
 var words = []
@@ -36,7 +36,7 @@ function fetchWordsLists(){
   });
   $.when(r1, r2).done(function() {
     words.sort();
-  }
+  });
 }
 
 function main(){
@@ -61,7 +61,7 @@ function main(){
 
   window.setInterval(getWords, 500);
   validate();
-  input.onkeyup = validate; 
+  input.onkeyup = validate;
 }
 
 function validate(){
@@ -112,7 +112,7 @@ function getWords(){
       }
     }
   }
-  
+
   if($(wordsList).is(':visible')){
       if($(wordsList).children().length < 2){
         $(wordsList).hide();
