@@ -1,5 +1,5 @@
 ### Installation
-* Go here: https://raw.githubusercontent.com/rosslh/skribbler/master/skribbler.js
+* Go here: https://raw.githubusercontent.com/rosslh/skribbler/master/skribbler.user.js
 * It should start to install automatically. If not, please manually enter that url into your userscript manager.
 
 ### Usage
