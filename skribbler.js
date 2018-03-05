@@ -3,7 +3,7 @@
 // @namespace https://rosshill.ca
 // @match *://skribbl.io/*
 // @grant none
-// @version 1.0.1
+// @version 1.0.2
 // ==/UserScript==
 
 var words = []
@@ -24,18 +24,16 @@ $(document).ready(function() {
 });
 
 function fetchWordsLists(){
-  var r1 = $.get("https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english-no-swears.txt", function( data ) {
+  $.get("https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english-no-swears.txt", function( data ) {
     words = data.split("\n");
-  });
-  var r2 = $.get("https://raw.githubusercontent.com/dolph/dictionary/master/popular.txt", function( data ) {
-    data.split("\n").forEach(function(item) {
-      if(words.indexOf(item) < 0) {
-         words.push(item);
-      }
+    $.get("https://raw.githubusercontent.com/dolph/dictionary/master/popular.txt", function( data ) {
+      data.split("\n").forEach(function(item) {
+        if(words.indexOf(item) < 0) {
+          words.push(item);
+        }
+      });
+      words.sort();
     });
-  });
-  $.when(r1, r2).done(function() {
-    words.sort();
   });
 }
 
