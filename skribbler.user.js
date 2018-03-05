@@ -1,9 +1,12 @@
 // ==UserScript==
-// @name skribbler
+// @name Skribbler
 // @namespace https://rosshill.ca
 // @match *://skribbl.io/*
 // @grant none
 // @version 1.0.3
+// @author Ross Hill
+// @icon https://skribbl.io/res/favicon.png
+// @homepage https://github.com/rosslh/skribbler
 // ==/UserScript==
 
 var words = []
