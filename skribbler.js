@@ -3,7 +3,7 @@
 // @namespace https://rosshill.ca
 // @match *://skribbl.io/*
 // @grant none
-// @version 1.0.2
+// @version 1.0.3
 // ==/UserScript==
 
 var words = []
@@ -24,10 +24,10 @@ $(document).ready(function() {
 });
 
 function fetchWordsLists(){
-  $.get("https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english-no-swears.txt", function( data ) {
-    words = data.split("\n");
-    $.get("https://raw.githubusercontent.com/dolph/dictionary/master/popular.txt", function( data ) {
-      data.split("\n").forEach(function(item) {
+  $.get("https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english-no-swears.txt", function( one ) {
+    words = one.split("\n");
+    $.get("https://raw.githubusercontent.com/dolph/dictionary/master/popular.txt", function( two ) {
+      two.split("\n").forEach(function(item) {
         if(words.indexOf(item) < 0) {
           words.push(item);
         }
@@ -39,21 +39,21 @@ function fetchWordsLists(){
 
 function main(){
   content = document.createElement("span");
-  wordsList = document.createElement("ul");
+  wordsList = $(document.createElement("ul"));
   formArea = $("#formChat")[0];
-  content.style.position = "relative"
+  content.style.position = "relative";
   content.style.left = "295px";
   content.style.top = "-25px";
-  wordsList.style.width = "70%";
-  wordsList.style.margin = "0 auto";
-  wordsList.style.marginTop = "10px";
-  wordsList.style.backgroundColor = "#eee";
-  wordsList.style.padding = "4px";
-  wordsList.style.borderRadius = "2px";
-  wordsList.style.listStylePosition = "inside";
-  wordsList.style.columns = "4";
+  wordsList[0].style.width = "70%";
+  wordsList[0].style.margin = "0 auto";
+  wordsList[0].style.marginTop = "10px";
+  wordsList[0].style.backgroundColor = "#eee";
+  wordsList[0].style.padding = "4px";
+  wordsList[0].style.borderRadius = "2px";
+  wordsList[0].style.listStylePosition = "inside";
+  wordsList[0].style.columns = "4";
   formArea.appendChild(content);
-  $("#screenGame")[0].appendChild(wordsList);
+  $("#screenGame")[0].appendChild(wordsList[0]);
   input = $('#inputChat')[0];
   input.style.border = "3px solid orange";
 
@@ -92,33 +92,34 @@ function getWords(){
   pattern = new RegExp("^" + clue.replace(/_/g, ".") + "$");
   if(clue != prevClue){
     prevClue = clue;
-    while (wordsList.firstChild) {
-        wordsList.removeChild(wordsList.firstChild);
+    while (wordsList[0].firstChild) {
+        wordsList[0].removeChild(wordsList[0].firstChild);
     }
     if(clue.replace(/_/g, "").length > 1){
       for(var i = 0; i<words.length; i++){
         if(words[i].length == clue.length && pattern.test(words[i])){
+          console.log(words[i])
           var item = document.createElement("li");
           item.textContent = words[i];
-          wordsList.appendChild(item);
+          wordsList[0].appendChild(item);
         }
       }
-      if($(wordsList).children().length > 0){
+      if(wordsList.children().length > 0){
         var heading = document.createElement("li");
         heading.textContent = clue +":";
-        $(wordsList).insertBefore(heading, wordsList.firstChild)
+        wordsList[0].insertBefore(heading, wordsList[0].firstChild)
       }
     }
   }
 
   if($(wordsList).is(':visible')){
-      if($(wordsList).children().length < 2){
-        $(wordsList).hide();
+      if(wordsList.children().length < 2){
+        wordsList.hide();
       }
   }
-  else if ($(wordsList).is(':hidden')){
-      if($(wordsList).children().length > 1){
-        $(wordsList).show();
+  else if (wordsList.is(':hidden')){
+      if(wordsList.children().length > 1){
+        wordsList.show();
       }
   }
 }
