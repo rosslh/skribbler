@@ -101,7 +101,6 @@ function getWords(){
     if(clue.replace(/_/g, "").length > 1){
       for(var i = 0; i<words.length; i++){
         if(words[i].length == clue.length && pattern.test(words[i])){
-          console.log(words[i])
           var item = document.createElement("li");
           item.textContent = words[i];
           wordsList[0].appendChild(item);
