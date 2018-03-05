@@ -77,8 +77,8 @@ function validate(){
   else if(remaining < 0){
     content.style.color = "red";
   }
-  pattern = new RegExp("^" + word.replace(/_/g, ".") + "$");
-  short = new RegExp("^" + word.replace(/_/g, ".").substring(0, input.value.length) + "$");
+  pattern = new RegExp("^" + word.replace(/_/g, "[^- ]") + "$");
+  short = new RegExp("^" + word.substring(0, input.value.length).replace(/_/g, "[^- ]") + "$");
   if(pattern.test(input.value)){
     input.style.border = "3px solid green";
   }
@@ -92,7 +92,7 @@ function validate(){
 
 function getWords(){
   var clue = $("#currentWord")[0].textContent.toLowerCase();
-  pattern = new RegExp("^" + clue.replace(/_/g, ".") + "$");
+  pattern = new RegExp("^" + clue.replace(/_/g, "[^- ]") + "$");
   if(clue != prevClue){
     prevClue = clue;
     while (wordsList[0].firstChild) {
