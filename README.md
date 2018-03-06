@@ -4,10 +4,11 @@
 * The script should start to install automatically. If not, please manually enter that url into your userscript manager.
 
 ### Features
-* The input field now turns green if input is a valid guess, orange/red if not
-* Input field has a characters remaining indicator
 * Once the clue has two or more letters visible, this script will show a list of English words that match the pattern
     * This does not work for multi-word phrases
+* The input field now turns green if input is a valid guess, orange/red if not
+* Input field has a characters remaining indicator
+* When drawing, links to Google image results for the topic are provided for easy reference
 
 ### Words list
 * Skribbler's words list is built from combining the following:

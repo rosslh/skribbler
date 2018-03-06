@@ -3,7 +3,7 @@
 // @namespace https://rosshill.ca
 // @match *://skribbl.io/*
 // @grant none
-// @version 1.0.7
+// @version 1.0.8
 // @author Ross Hill
 // @icon https://skribbl.io/res/favicon.png
 // @homepage https://github.com/rosslh/skribbler
@@ -14,11 +14,12 @@ var pattern = ""
 var content;
 var wordsList;
 var prevClue = ""
+var links;
 
 
 $(document).ready(function() {
     run = window.setInterval(function() {
-        if ($("#currentWord")[0].innerText) {
+        if (getClue()) {
             clearInterval(run);
             fetchWordsLists();
             main();
@@ -32,33 +33,52 @@ function fetchWordsLists() {
     });
 }
 
+function clueChanged(){
+  var clue = getClueText();
+  if(clue != prevClue){
+    prevClue = clue;
+    validateInput();
+    getWords(clue);
+    showDrawLinks(clue);
+  }
+}
+
 function main() {
+    links = document.createElement("strong");
+    $(links).css({"padding": "0 1em 0 1em"});
+    getClue().after(links)
     content = document.createElement("span");
     wordsList = $(document.createElement("ul"));
     formArea = $("#formChat")[0];
-    content.style.position = "relative";
-    content.style.left = "295px";
-    content.style.top = "-25px";
-    wordsList[0].style.width = "70%";
-    wordsList[0].style.margin = "0 auto";
-    wordsList[0].style.marginTop = "10px";
-    wordsList[0].style.backgroundColor = "#eee";
-    wordsList[0].style.padding = "4px";
-    wordsList[0].style.borderRadius = "2px";
-    wordsList[0].style.listStylePosition = "inside";
-    wordsList[0].style.columns = "4";
+    $(content).css({"position": "relative", "left": "295px", "top": "-25px"});
+    wordsList.css({"width": "70%", "margin": "0 auto", "margin-top": "10px", "background-color": "#eee", "padding": "4px", "border-radius": "2px", "list-style-position": "inside", "columns": "4"})
     formArea.appendChild(content);
     $("#screenGame")[0].appendChild(wordsList[0]);
-    input = $('#inputChat')[0];
+    input = getInput()[0];
     input.style.border = "3px solid orange";
-
-    window.setInterval(getWords, 500);
-    validate();
-    input.onkeyup = validate;
+    window.setInterval(clueChanged, 500);
+    input.onkeyup = validateInput;
 }
 
-function validate() {
-    word = $("#currentWord")[0].textContent.toLowerCase();
+function getInput(){
+  return $('#inputChat');
+}
+
+function getRegex(clue){
+  return new RegExp("^" + clue.replace(/_/g, "[^- ]") + "$");
+}
+
+function getClueText(){
+  return getClue()[0].textContent.toLowerCase();
+}
+
+function getClue(){
+  return $("#currentWord");
+}
+
+function validateInput() {
+    word = getClueText();
+    var input = getInput()[0];
     var remaining = word.length - input.value.length;
     content.textContent = remaining;
     content.style.color = "unset";
@@ -68,38 +88,44 @@ function validate() {
     } else if (remaining < 0) {
         content.style.color = "red";
     }
-    pattern = new RegExp("^" + word.replace(/_/g, "[^- ]") + "$");
-    short = new RegExp("^" + word.substring(0, input.value.length).replace(/_/g, "[^- ]") + "$");
-    if (pattern.test(input.value)) {
+    pattern = getRegex(word);
+    short = getRegex(word.substring(0, input.value.length));
+    if (pattern.test(input.value.toLowerCase())) {
         input.style.border = "3px solid green";
-    } else if (short.test(input.value)) {
+    } else if (short.test(input.value.toLowerCase())) {
         input.style.border = "3px solid orange";
     } else {
         input.style.border = "3px solid red";
     }
 }
 
-function getWords() {
-    var clue = $("#currentWord")[0].textContent.toLowerCase();
-    pattern = new RegExp("^" + clue.replace(/_/g, "[^- ]") + "$");
-    if (clue != prevClue) {
-        prevClue = clue;
-        while (wordsList[0].firstChild) {
-            wordsList[0].removeChild(wordsList[0].firstChild);
+function showDrawLinks(clueText){
+  if(clueText.indexOf("_") == -1){
+    links.innerHTML = "– <a style='color: blue' target='_blank' href='https://www.google.ca/search?tbm=isch&q=" + clueText + "'>Images</a>";
+    links.innerHTML += ", <a style='color: blue' target='_blank' href='https://www.google.ca/search?tbm=isch&tbs=itp:lineart&q=" + clueText + "'>Line art</a>";
+  }
+  else{
+    links.innerHTML = "";
+  }
+}
+
+function getWords(clue) {
+    pattern = getRegex(clue);
+    while (wordsList[0].firstChild) {
+        wordsList[0].removeChild(wordsList[0].firstChild);
+    }
+    if (clue.replace(/_/g, "").length > 1) {
+        for (var i = 0; i < words.length; i++) {
+            if (words[i].length == clue.length && pattern.test(words[i])) {
+                var item = document.createElement("li");
+                item.textContent = words[i];
+                wordsList[0].appendChild(item);
+            }
         }
-        if (clue.replace(/_/g, "").length > 1) {
-            for (var i = 0; i < words.length; i++) {
-                if (words[i].length == clue.length && pattern.test(words[i])) {
-                    var item = document.createElement("li");
-                    item.textContent = words[i];
-                    wordsList[0].appendChild(item);
-                }
-            }
-            if (wordsList.children().length > 0) {
-                var heading = document.createElement("li");
-                heading.textContent = clue + ":";
-                wordsList[0].insertBefore(heading, wordsList[0].firstChild)
-            }
+        if (wordsList.children().length > 0) {
+            var heading = document.createElement("li");
+            heading.textContent = clue + ":";
+            wordsList[0].insertBefore(heading, wordsList[0].firstChild)
         }
     }
 
