@@ -15,8 +15,7 @@
 
 ### Installation
 * Make sure you have a userscript manager extension installed
-    * this script works on Tampermonkey and Greasemonkey on Firefox
-    * it doesn't work with Violentmonkey on Firefox
+    * this script works on Violentmonkey, Tampermonkey, and Greasemonkey on Firefox
     * untested on other browsers
 * Go here: https://raw.githubusercontent.com/rosslh/skribbler/master/skribbler.user.js
 * The script should start to install automatically. If not, please manually enter that url into your userscript manager.
