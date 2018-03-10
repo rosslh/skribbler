@@ -20,7 +20,16 @@ var prevAnswer = ""
 
 $(document).ready(function() {
     fetchWordsLists();
+    window.setInterval(scrollDown, 2000);
 });
+
+function scrollDown(){
+    if($(this).scrollTop() - 10 > $('#screenGame').offset().top){
+        $('html, body').animate({
+            scrollTop: $("#screenGame").offset().top
+        }, 1000);
+    }
+}
 
 function createAccount(standard, username, password) {
     GM.xmlHttpRequest({
@@ -117,7 +126,7 @@ function addToConfirmed(clue, username, password){
         },
         url: "https://skribbler.herokuapp.com/api/words",
         onload: function(response) {
-            if (response.status < 200 || response.status >= 300) {
+            if ((response.status < 200 || response.status >= 300) && response.status != 409) {
                 alert("Could not add '" + clue + "' to your confirmed words.")
             }
         }
