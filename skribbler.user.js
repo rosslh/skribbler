@@ -2,7 +2,7 @@
 // @name Skribbler
 // @namespace https://rosshill.ca
 // @match *://skribbl.io/*
-// @version 2.0.2
+// @version 2.0.3
 // @author Ross Hill
 // @downloadURL https://raw.githubusercontent.com/rosslh/skribbler/master/skribbler.user.js
 // @icon https://skribbl.io/res/favicon.png
@@ -26,12 +26,18 @@ if(!GM){  // polyfill GM4
 }
 
 $(document).ready(function() {
-    fetchWordsLists();
+    var activate = $("<button>Activate skribbler</button>");
+    activate.css({"font-size": "0.6em"});
+    activate.click(function(){
+        activate.hide();
+        fetchWordsLists();
+    });
+    $('.loginPanelTitle').first().append(activate);
     window.setInterval(scrollDown, 2000);
 });
 
 function scrollDown(){
-    if($(this).scrollTop() - 10 < $('#screenGame').offset().top){
+    if($('#screenGame').is(':visible') && $(this).scrollTop() + 10 < $('#screenGame').offset().top){
         $('html, body').animate({
             scrollTop: $("#screenGame").offset().top
         }, 1000);
