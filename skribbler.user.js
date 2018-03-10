@@ -2,13 +2,14 @@
 // @name Skribbler
 // @namespace https://rosshill.ca
 // @match *://skribbl.io/*
-// @grant GM.xmlHttpRequest
-// @version 2.0.0
+// @version 2.0.1
 // @author Ross Hill
 // @icon https://skribbl.io/res/favicon.png
 // @homepageURL https://github.com/rosslh/skribbler
 // @connect skribbler.herokuapp.com
 // @require http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
+// @grant GM.xmlHttpRequest
+// @grant GM_xmlhttpRequest
 // ==/UserScript==
 
 var pattern = ""
@@ -18,13 +19,18 @@ var prevClue = ""
 var links;
 var prevAnswer = ""
 
+if(!GM){  // polyfill GM4
+  var GM = {};
+  GM.xmlHttpRequest = GM_xmlhttpRequest;
+}
+
 $(document).ready(function() {
     fetchWordsLists();
     window.setInterval(scrollDown, 2000);
 });
 
 function scrollDown(){
-    if($(this).scrollTop() - 10 > $('#screenGame').offset().top){
+    if($(this).scrollTop() - 10 < $('#screenGame').offset().top){
         $('html, body').animate({
             scrollTop: $("#screenGame").offset().top
         }, 1000);
