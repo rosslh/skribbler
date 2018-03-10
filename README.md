@@ -14,7 +14,10 @@
     * People are only shown their own words list plus the words lists of trusted users (just the maintainer, Ross Hill for now). This is to prevent naughty users from feeding the database incorrect answers
 
 ### Installation
-* Make sure you have a userscript manager extension installed (Violentmonkey, Tampermonkey, Greasemonkey, etc.)
+* Make sure you have a userscript manager extension installed
+    * this script works on Tampermonkey and Greasemonkey on Firefox
+    * it doesn't work with Violentmonkey on Firefox
+    * untested on other browsers
 * Go here: https://raw.githubusercontent.com/rosslh/skribbler/master/skribbler.user.js
 * The script should start to install automatically. If not, please manually enter that url into your userscript manager.
 
