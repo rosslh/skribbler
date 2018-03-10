@@ -3,7 +3,7 @@
 2. The input field turns green if input is a valid guess, orange/red if not
 3. Input field has a characters remaining indicator
 4. When drawing, links to Google image results for the topic are provided for easy reference
-
+5. Move audio button to the right so that it doesn't cover the countdown clock
 
 ### How it works (read before installing)
 * This script builds up a database of encountered correct answers so it can provide possible answers as you play.

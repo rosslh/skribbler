@@ -2,7 +2,7 @@
 // @name Skribbler
 // @namespace https://rosshill.ca
 // @match *://skribbl.io/*
-// @version 2.0.3
+// @version 2.0.4
 // @author Ross Hill
 // @downloadURL https://raw.githubusercontent.com/rosslh/skribbler/master/skribbler.user.js
 // @icon https://skribbl.io/res/favicon.png
@@ -32,6 +32,7 @@ $(document).ready(function() {
         activate.hide();
         fetchWordsLists();
     });
+    $("#audio").css({"left":"unset", "right":"10px"}); // so it doesn't cover timer
     $('.loginPanelTitle').first().append(activate);
     window.setInterval(scrollDown, 2000);
 });
