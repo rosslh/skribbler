@@ -2,7 +2,7 @@
 // @name Skribbler
 // @namespace https://rosshill.ca
 // @match *://skribbl.io/*
-// @version 2.1.0
+// @version 2.2.0
 // @author Ross Hill
 // @downloadURL https://raw.githubusercontent.com/rosslh/skribbler/master/skribbler.user.js
 // @icon https://skribbl.io/res/favicon.png
