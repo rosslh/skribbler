@@ -16,13 +16,15 @@
 var pattern = ""
 var content;
 var wordsList;
-var prevClue = ""
+var prevClue = "";
 var links;
-var prevAnswer = ""
+var prevAnswer = "";
 
-var prevOneOff = ""
-unsafeWindow.oneOffWords = []
-unsafeWindow.guessed = []
+var prevGuess = "";
+var prevOneOff = "";
+unsafeWindow.oneOffWords = [];
+unsafeWindow.guessed = [];
+unsafeWindow.validAnswers = [];
 
 $(document).ready(function() {
     if (typeof GM === 'undefined') { // polyfill GM4
@@ -77,13 +79,37 @@ function createAccount(standard, username, password) {
     });
 }
 
+function getUsername() {
+    var nameElem = $(".info .name[style='color: rgb(0, 0, 255);")[0];
+    if (typeof nameElem !== "undefined") {
+        return nameElem.innerText.split(" (")[0];
+    }
+}
+
+function findGuessedWords(standard, confirmed) {
+    var username = getUsername();
+    if (username) {
+        var guess = $("#boxMessages p[style='color: rgb(0, 0, 0);'] b:contains(" + username + ":)").parent().find("span").last();
+        guess = guess.text();
+        if (guess && guess != prevGuess) {
+            prevGuess = guess;
+            if (unsafeWindow.guessed.indexOf(guess) == -1) {
+                unsafeWindow.guessed.push(guess);
+                constructWordsList(getClueText(), standard, confirmed)
+            }
+        }
+    }
+}
+
 function findCloseWords(standard, confirmed) {
     var close = $("#boxMessages p[style='color: rgb(204, 204, 0); font-weight: bold;'] span:contains( is close!)").last();
     close = close.text().split("'")[1]
     if (close && close != prevOneOff) {
         prevOneOff = close;
-        unsafeWindow.oneOffWords.push(close);
-        getWords(getClueText(), standard, confirmed)
+        if (unsafeWindow.oneOffWords.indexOf(close) == -1) {
+            unsafeWindow.oneOffWords.push(close);
+            constructWordsList(getClueText(), standard, confirmed)
+        }
     }
 }
 
@@ -170,7 +196,7 @@ function clueChanged(standard, confirmed, username, password) {
     if (clue != prevClue) {
         prevClue = clue;
         validateInput();
-        getWords(clue, standard, confirmed);
+        constructWordsList(clue, standard, confirmed);
         showDrawLinks(clue);
     }
 }
@@ -178,8 +204,6 @@ function clueChanged(standard, confirmed, username, password) {
 function answerShown(username, password) {
     answer = $('#overlay .content .text')[0].innerText;
     if (answer.slice(0, 14) == "The word was: ") {
-        unsafeWindow.guessed = [];
-        unsafeWindow.oneOffWords = [];
         answer = answer.slice(14);
         if (answer != prevAnswer) {
             prevAnswer = answer;
@@ -219,36 +243,59 @@ function main(standard, confirmed, username, password) {
     input.style.border = "3px solid orange";
     window.setInterval(function() {
         clueChanged(standard, confirmed, username, password);
-    }, 500);
+    }, 750);
     window.setInterval(function() {
         answerShown(username, password);
-    }, 300);
+    }, 750);
     window.setInterval(function() {
         findCloseWords(standard, confirmed);
-    }, 1000);
+    }, 750);
+    window.setInterval(function() {
+        findGuessedWords(standard, confirmed);
+    }, 750);
     window.setInterval(function() {
         toggleWordsList();
+    }, 1500);
+
+    $("#formChat").append($('<div style="background-color:#eee; position:relative; top:-20px; padding:0 5px; width:auto; margin:0;"><input id="guessEnabled" name="guessEnabled" style="width:5px; height:5px; filter: brightness(0.8);" type="checkbox"><label for="guessEnabled" style="all: initial; padding-left:5px;">Enable auto-guesser</label></div>'));
+
+    var lastGuess = 0;
+    var lastTyped = 0;
+    var guess = window.setInterval(function() {
+        if ($("#guessEnabled").is(':checked') && Date.now() - lastTyped > 2000 && Date.now() - lastGuess > 2000) {
+            lastGuess = Date.now();
+            makeGuess(getClueText(), standard, confirmed);
+        }
     }, 1000);
-    input.onkeyup = validateInput;
-    if(typeof formChat !== "undefined"){
-        var submitProp = Object.keys(formChat).filter(function(k) {
-            return ~k.indexOf("jQuery")
-        })[0];
-        var originalHandler = formChat[submitProp].events.submit[0].handler;
-        formChat[submitProp].events.submit[0].handler = function() {
-            unsafeWindow.guessed.push(getInput()[0].value);
-            getWords(getClueText(), standard, confirmed);
-            originalHandler();
-            return false;
-        };
-    }
-    else {
-        $("#formChat").keypress(function(e) {
-            if(e.which == 13) {
-                unsafeWindow.guessed.push(getInput()[0].value);
-                getWords(getClueText(), standard, confirmed);
+    getInput().keyup(function() {
+        lastTyped = Date.now();
+    });
+    getInput().keyup(validateInput);
+}
+
+function makeGuess(clue, standard, confirmed) {
+    if (validClue(clue) && !wordGuessed()) {
+        var words = getWords(clue, standard, confirmed);
+        var confWords = [];
+        confirmed.forEach(function(item) {
+            if (words.indexOf(item) != -1) {
+                confWords.push(item);
             }
         });
+        if (confWords.length != 0) {
+            var guess = confWords[Math.floor(Math.random() * confWords.length)];
+        } else {
+            var guess = words[Math.floor(Math.random() * words.length)];
+        }
+        var submitProp = Object.keys(unsafeWindow.formChat).filter(function(k) {
+            return ~k.indexOf("jQuery")
+        })[0];
+        window.setTimeout(function() {
+            if (getInput().val() == "") {
+                getInput().val(guess);
+                unsafeWindow.formChat[submitProp].events.submit[0].handler();
+            }
+        }, Math.floor((Math.random() * 1000)));
     }
 }
 
@@ -346,58 +393,93 @@ function checkPastGuesses(notOBO, word) {
 }
 
 function wordGuessed() {
-    return $(".guessedWord .info .name:contains((You))").length;
+    if ($(".guessedWord .info .name[style='color: rgb(0, 0, 255);']").length) {
+        unsafeWindow.validAnswers = [];
+        unsafeWindow.guessed = [];
+        unsafeWindow.oneOffWords = [];
+        return true;
+    }
+    return false;
 }
 
-function toggleWordsList(){
-  if ($(wordsList).is(':visible')) {
-        if (wordsList.children().length == 0 || wordGuessed()) {
+function toggleWordsList() {
+    if ($(wordsList).is(':visible')) {
+        if (wordsList.children().length == 0 || wordGuessed() || !validClue(getClueText())) {
             wordsList.hide();
         }
     } else if (wordsList.is(':hidden')) {
-        if (wordsList.children().length > 0 && !wordGuessed()) {
+        if (wordsList.children().length > 0 && !wordGuessed() && validClue(getClueText())) {
             wordsList.show();
         }
     }
 }
 
-function getWords(clue, standard, confirmed) {
-    var words = standard;
-    confirmed.forEach(function(item) {
-        if (words.indexOf(item) == -1) {
-            words.push(item);
-        }
-    });
-    pattern = getRegex(clue);
-    while (wordsList[0].firstChild) {
-        wordsList[0].removeChild(wordsList[0].firstChild);
+function validClue(clue) {
+    var someoneDrawing = $(".drawing").is(":visible");
+    var noUnderscore = clue.replace(/_/g, "").length;
+    if (someoneDrawing &&
+        (noUnderscore > 0 && noUnderscore != clue.length || unsafeWindow.oneOffWords.length > 0)) {
+        return true;
     }
+    unsafeWindow.validAnswers = [];
+    unsafeWindow.guessed = [];
+    unsafeWindow.oneOffWords = [];
+    return false;
+}
+
+function constructWordsList(clue, standard, confirmed) {
+    var newList = $(document.createElement("ul"));
+    newList.css({
+        "width": "70%",
+        "margin": "0 auto",
+        "margin-top": "10px",
+        "background-color": "#eee",
+        "padding": "4px",
+        "border-radius": "2px",
+        "list-style-position": "inside",
+        "columns": "4",
+        "display": wordsList.css('display'),
+        "visibility": wordsList.css('visibility')
+    })
+    if (validClue(clue) && !wordGuessed()) {
+        var words = getWords(clue, standard, confirmed);
+        for (var i = 0; i < words.length; i++) {
+            var item = document.createElement("li");
+            if (confirmed.indexOf(words[i]) > -1) {
+                item.innerHTML = "<strong>" + words[i] + "</strong>";
+            } else {
+                item.innerText = words[i];
+            }
+            newList[0].appendChild(item);
+        }
+    }
+    wordsList.html(newList.html());
+}
+
+function getWords(clue, standard, confirmed) {
+    if (unsafeWindow.validAnswers.length == 0) {
+        confirmed.forEach(function(item) {
+            if (standard.indexOf(item) == -1) {
+                standard.push(item);
+            }
+        });
+    }
+    var words = unsafeWindow.validAnswers.length > 0 ? unsafeWindow.validAnswers : standard;
+    var out = [];
+    pattern = getRegex(clue);
     var notOBO = [];
     unsafeWindow.guessed.forEach(function(word) {
         if (unsafeWindow.oneOffWords.indexOf(word) == -1) {
             notOBO.push(word);
         }
     });
-    if (!wordGuessed() && (clue.replace(/_/g, "").length > 1 || unsafeWindow.oneOffWords.length > 0)) {
+    if (!wordGuessed()) {
         for (var i = 0; i < words.length; i++) {
             if (words[i].length == clue.length && pattern.test(words[i]) && checkPastGuesses(notOBO, words[i])) {
-                var item = document.createElement("li");
-                if (confirmed.indexOf(words[i]) > -1) {
-                    item.innerHTML = "<strong>" + words[i] + "</strong>";
-                } else {
-                    item.innerText = words[i];
-                }
-                wordsList[0].appendChild(item);
-            }
-        }
-    } else if (!wordGuessed() && clue.match(/( |-)/)) {
-        for (var i = 0; i < confirmed.length; i++) {
-            if (confirmed[i].length == clue.length && pattern.test(confirmed[i]) && checkPastGuesses(notOBO, confirmed[i])) {
-                var item = document.createElement("li");
-                item.innerHTML = "<strong>" + confirmed[i] + "</strong>";
-                wordsList[0].appendChild(item);
+                out.push(words[i]);
             }
         }
     }
-    toggleWordsList();
+    unsafeWindow.validAnswers = out;
+    return out;
 }
