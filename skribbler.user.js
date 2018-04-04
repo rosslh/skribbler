@@ -13,18 +13,22 @@
 // @grant GM_xmlhttpRequest
 // ==/UserScript==
 
-var pattern = ""
-var content;
-var wordsList;
-var prevClue = "";
-var links;
-var prevAnswer = "";
+var state = {
+    pattern: "",
+    content: null,
+    wordsList: null,
+    prevClue: "",
+    links: null,
+    prevAnswer: "",
+    prevGuess: "",
+    prevOneOff: ""
+}
 
-var prevGuess = "";
-var prevOneOff = "";
-unsafeWindow.oneOffWords = [];
-unsafeWindow.guessed = [];
-unsafeWindow.validAnswers = [];
+unsafeWindow.words = {
+    oneOffWords: [],
+    guessed: [],
+    validAnswers: []
+}
 
 $(document).ready(function() {
     if (typeof GM === 'undefined') { // polyfill GM4
@@ -91,10 +95,10 @@ function findGuessedWords(standard, confirmed) {
     if (username) {
         var guess = $("#boxMessages p[style='color: rgb(0, 0, 0);'] b:contains(" + username + ":)").parent().find("span").last();
         guess = guess.text();
-        if (guess && guess != prevGuess) {
-            prevGuess = guess;
-            if (unsafeWindow.guessed.indexOf(guess) == -1) {
-                unsafeWindow.guessed.push(guess);
+        if (guess && guess != state.prevGuess) {
+            state.prevGuess = guess;
+            if (unsafeWindow.words.guessed.indexOf(guess) == -1) {
+                unsafeWindow.words.guessed.push(guess);
                 constructWordsList(getClueText(), standard, confirmed)
             }
         }
@@ -104,10 +108,10 @@ function findGuessedWords(standard, confirmed) {
 function findCloseWords(standard, confirmed) {
     var close = $("#boxMessages p[style='color: rgb(204, 204, 0); font-weight: bold;'] span:contains( is close!)").last();
     close = close.text().split("'")[1]
-    if (close && close != prevOneOff) {
-        prevOneOff = close;
-        if (unsafeWindow.oneOffWords.indexOf(close) == -1) {
-            unsafeWindow.oneOffWords.push(close);
+    if (close && close != state.prevOneOff) {
+        state.prevOneOff = close;
+        if (unsafeWindow.words.oneOffWords.indexOf(close) == -1) {
+            unsafeWindow.words.oneOffWords.push(close);
             constructWordsList(getClueText(), standard, confirmed)
         }
     }
@@ -193,8 +197,8 @@ function addToConfirmed(clue, username, password) {
 
 function clueChanged(standard, confirmed, username, password) {
     var clue = getClueText();
-    if (clue != prevClue) {
-        prevClue = clue;
+    if (clue != state.prevClue) {
+        state.prevClue = clue;
         validateInput();
         constructWordsList(clue, standard, confirmed);
         showDrawLinks(clue);
@@ -205,8 +209,8 @@ function answerShown(username, password) {
     answer = $('#overlay .content .text')[0].innerText;
     if (answer.slice(0, 14) == "The word was: ") {
         answer = answer.slice(14);
-        if (answer != prevAnswer) {
-            prevAnswer = answer;
+        if (answer != state.prevAnswer) {
+            state.prevAnswer = answer;
             addToConfirmed(answer, username, password);
         }
     }
@@ -214,20 +218,20 @@ function answerShown(username, password) {
 
 
 function main(standard, confirmed, username, password) {
-    links = document.createElement("strong");
-    $(links).css({
+    state.links = document.createElement("strong");
+    $(state.links).css({
         "padding": "0 1em 0 1em"
     });
-    getClue().after(links)
-    content = document.createElement("span");
-    wordsList = $(document.createElement("ul"));
+    getClue().after(state.links)
+    state.content = document.createElement("span");
+    state.wordsList = $(document.createElement("ul"));
     formArea = $("#formChat")[0];
     $(content).css({
         "position": "relative",
         "left": "295px",
         "top": "-25px"
     });
-    wordsList.css({
+    state.wordsList.css({
         "width": "70%",
         "margin": "0 auto",
         "margin-top": "10px",
@@ -237,8 +241,8 @@ function main(standard, confirmed, username, password) {
         "list-style-position": "inside",
         "columns": "4"
     })
-    formArea.appendChild(content);
-    $("#screenGame")[0].appendChild(wordsList[0]);
+    formArea.appendChild(state.content);
+    $("#screenGame")[0].appendChild(state.wordsList[0]);
     input = getInput()[0];
     input.style.border = "3px solid orange";
     window.setInterval(function() {
@@ -291,7 +295,7 @@ function makeGuess(clue, standard, confirmed) {
             return ~k.indexOf("jQuery")
         })[0];
         window.setTimeout(function() {
-            if (getInput().val() == "") {
+            if (getInput().val() == "" && validClue(clue) && !wordGuessed()) {
                 getInput().val(guess);
                 unsafeWindow.formChat[submitProp].events.submit[0].handler();
             }
@@ -319,17 +323,17 @@ function validateInput() {
     word = getClueText();
     var input = getInput()[0];
     var remaining = word.length - input.value.length;
-    content.textContent = remaining;
-    content.style.color = "unset";
+    state.content.textContent = remaining;
+    state.content.style.color = "unset";
     if (remaining > 0) {
-        content.textContent = "+" + content.textContent;
-        content.style.color = "green";
+        state.content.textContent = "+" + state.content.textContent;
+        state.content.style.color = "green";
     } else if (remaining < 0) {
-        content.style.color = "red";
+        state.content.style.color = "red";
     }
-    pattern = getRegex(word);
+    state.pattern = getRegex(word);
     short = getRegex(word.substring(0, input.value.length));
-    if (pattern.test(input.value.toLowerCase())) {
+    if (state.pattern.test(input.value.toLowerCase())) {
         input.style.border = "3px solid green";
     } else if (short.test(input.value.toLowerCase())) {
         input.style.border = "3px solid orange";
@@ -340,10 +344,10 @@ function validateInput() {
 
 function showDrawLinks(clueText) {
     if (clueText.length > 0 && clueText.indexOf("_") == -1) {
-        links.innerHTML = "<a style='color: blue' target='_blank' href='https://www.google.ca/search?tbm=isch&q=" + clueText + "'>Images</a>, ";
-        links.innerHTML += "<a style='color: blue' target='_blank' href='https://www.google.ca/search?tbm=isch&tbs=itp:lineart&q=" + clueText + "'>Line art</a>";
+        state.links.innerHTML = "<a style='color: blue' target='_blank' href='https://www.google.ca/search?tbm=isch&q=" + clueText + "'>Images</a>, ";
+        state.links.innerHTML += "<a style='color: blue' target='_blank' href='https://www.google.ca/search?tbm=isch&tbs=itp:lineart&q=" + clueText + "'>Line art</a>";
     } else {
-        links.innerHTML = "";
+        state.links.innerHTML = "";
     }
 }
 
@@ -376,11 +380,11 @@ function oneOff(listWord, guessedWord) {
 }
 
 function checkPastGuesses(notOBO, word) {
-    if (unsafeWindow.guessed.indexOf(word) != -1) {
+    if (unsafeWindow.words.guessed.indexOf(word) != -1) {
         return false;
     }
-    for (var i = 0; i < unsafeWindow.oneOffWords.length; i++) {
-        if (!oneOff(word, unsafeWindow.oneOffWords[i])) {
+    for (var i = 0; i < unsafeWindow.words.oneOffWords.length; i++) {
+        if (!oneOff(word, unsafeWindow.words.oneOffWords[i])) {
             return false;
         }
     }
@@ -394,22 +398,22 @@ function checkPastGuesses(notOBO, word) {
 
 function wordGuessed() {
     if ($(".guessedWord .info .name[style='color: rgb(0, 0, 255);']").length) {
-        unsafeWindow.validAnswers = [];
-        unsafeWindow.guessed = [];
-        unsafeWindow.oneOffWords = [];
+        unsafeWindow.words.validAnswers = [];
+        unsafeWindow.words.guessed = [];
+        unsafeWindow.words.oneOffWords = [];
         return true;
     }
     return false;
 }
 
 function toggleWordsList() {
-    if ($(wordsList).is(':visible')) {
-        if (wordsList.children().length == 0 || wordGuessed() || !validClue(getClueText())) {
-            wordsList.hide();
+    if ($(state.wordsList).is(':visible')) {
+        if (state.wordsList.children().length == 0 || wordGuessed() || !validClue(getClueText())) {
+            state.wordsList.hide();
         }
-    } else if (wordsList.is(':hidden')) {
-        if (wordsList.children().length > 0 && !wordGuessed() && validClue(getClueText())) {
-            wordsList.show();
+    } else if (state.wordsList.is(':hidden')) {
+        if (state.wordsList.children().length > 0 && !wordGuessed() && validClue(getClueText())) {
+            state.wordsList.show();
         }
     }
 }
@@ -418,12 +422,12 @@ function validClue(clue) {
     var someoneDrawing = $(".drawing").is(":visible");
     var noUnderscore = clue.replace(/_/g, "").length;
     if (someoneDrawing &&
-        (noUnderscore > 0 && noUnderscore != clue.length || unsafeWindow.oneOffWords.length > 0)) {
+        (noUnderscore > 0 && noUnderscore != clue.length || unsafeWindow.words.oneOffWords.length > 0)) {
         return true;
     }
-    unsafeWindow.validAnswers = [];
-    unsafeWindow.guessed = [];
-    unsafeWindow.oneOffWords = [];
+    unsafeWindow.words.validAnswers = [];
+    unsafeWindow.words.guessed = [];
+    unsafeWindow.words.oneOffWords = [];
     return false;
 }
 
@@ -438,8 +442,8 @@ function constructWordsList(clue, standard, confirmed) {
         "border-radius": "2px",
         "list-style-position": "inside",
         "columns": "4",
-        "display": wordsList.css('display'),
-        "visibility": wordsList.css('visibility')
+        "display": state.wordsList.css('display'),
+        "visibility": state.wordsList.css('visibility')
     })
     if (validClue(clue) && !wordGuessed()) {
         var words = getWords(clue, standard, confirmed);
@@ -453,33 +457,33 @@ function constructWordsList(clue, standard, confirmed) {
             newList[0].appendChild(item);
         }
     }
-    wordsList.html(newList.html());
+    state.wordsList.html(newList.html());
 }
 
 function getWords(clue, standard, confirmed) {
-    if (unsafeWindow.validAnswers.length == 0) {
+    if (unsafeWindow.words.validAnswers.length == 0) {
         confirmed.forEach(function(item) {
             if (standard.indexOf(item) == -1) {
                 standard.push(item);
             }
         });
     }
-    var words = unsafeWindow.validAnswers.length > 0 ? unsafeWindow.validAnswers : standard;
+    var words = unsafeWindow.words.validAnswers.length > 0 ? unsafeWindow.words.validAnswers : standard;
     var out = [];
-    pattern = getRegex(clue);
+    state.pattern = getRegex(clue);
     var notOBO = [];
-    unsafeWindow.guessed.forEach(function(word) {
-        if (unsafeWindow.oneOffWords.indexOf(word) == -1) {
+    unsafeWindow.words.guessed.forEach(function(word) {
+        if (unsafeWindow.words.oneOffWords.indexOf(word) == -1) {
             notOBO.push(word);
         }
     });
     if (!wordGuessed()) {
         for (var i = 0; i < words.length; i++) {
-            if (words[i].length == clue.length && pattern.test(words[i]) && checkPastGuesses(notOBO, words[i])) {
+            if (words[i].length == clue.length && state.pattern.test(words[i]) && checkPastGuesses(notOBO, words[i])) {
                 out.push(words[i]);
             }
         }
     }
-    unsafeWindow.validAnswers = out;
+    unsafeWindow.words.validAnswers = out;
     return out;
 }
