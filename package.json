@@ -1,0 +1,36 @@
+{
+  "name": "Skribbler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "skribbler.user.js",
+  "scripts": {
+    "lint": "eslint --fix bin/source.js",
+    "build": "babel bin/source.js -o bin/part.js && cat bin/metadata.js bin/part.js > skribbler.user.js && rm bin/part.js"
+  },
+  "babel": {
+    "comments": false,
+    "compact": true,
+    "minified": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rosslh/skribbler.git"
+  },
+  "author": "Ross Hill",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rosslh/skribbler/issues"
+  },
+  "homepage": "https://github.com/rosslh/skribbler#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.10.0"
+  },
+  "dependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.10.0"
+  }
+}
