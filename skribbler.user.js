@@ -12,8 +12,6 @@
 // @grant GM.xmlHttpRequest
 // @grant GM_xmlhttpRequest
 // ==/UserScript==
-'use strict';
-
 var state = {
   pattern: '',
   content: document.createElement('span'),
@@ -461,8 +459,8 @@ function getLoginDetails() {
 
 $(document).ready(function () {
   if (typeof GM === 'undefined') {
-    GM = {};
-    GM.xmlHttpRequest = GM_xmlhttpRequest;
+    GM = {
+      xmlHttpRequest: GM_xmlhttpRequest };
   }
   var activate = $('<button>Activate skribbler</button>');
   activate.css({

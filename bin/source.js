@@ -449,8 +449,9 @@ function getLoginDetails() {
 
 $(document).ready(() => {
   if (typeof GM === 'undefined') { // polyfill GM4
-    GM = {}; // eslint-disable-line no-global-assign
-    GM.xmlHttpRequest = GM_xmlhttpRequest; // eslint-disable-line camelcase
+    GM = { // eslint-disable-line no-global-assign
+      xmlHttpRequest: GM_xmlhttpRequest, // eslint-disable-line camelcase
+    };
   }
   const activate = $('<button>Activate skribbler</button>');
   activate.css({
