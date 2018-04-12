@@ -89,13 +89,13 @@ function checkPastGuesses(notOBO, word) {
   if (unsafeWindow.dictionary.guessed.indexOf(word) !== -1) {
     return false;
   }
-  for (let a = 0; a < unsafeWindow.dictionary.oneOffWords.length; a++) {
-    if (!oneOff(word, unsafeWindow.dictionary.oneOffWords[a])) {
+  for (const oneOffWord of unsafeWindow.dictionary.oneOffWords) {
+    if (!oneOff(word, oneOffWord)) {
       return false;
     }
   }
-  for (let i = 0; i < notOBO.length; i++) {
-    if (oneOff(word, notOBO[i])) {
+  for (const str of notOBO) {
+    if (oneOff(word, str)) {
       return false;
     }
   }
@@ -109,7 +109,7 @@ function getRegex(clue) {
 function getWords(clue) {
   const dict = unsafeWindow.dictionary;
   let words;
-  if (dict.validAnswers.length === 0 && dict.guessed.length === 0) {
+  if (dict.validAnswers.length === 0) { // && dict.guessed.length === 0
     words = dict.confirmed.slice();
     dict.standard.forEach((item) => {
       if (words.indexOf(item) === -1) {
@@ -128,10 +128,10 @@ function getWords(clue) {
     }
   });
   if (!wordGuessed()) {
-    for (let i = 0; i < words.length; i++) {
-      if (words[i].length === clue.length && state.pattern.test(words[i])
-        && checkPastGuesses(notOBO, words[i])) {
-        out.push(words[i]);
+    for (const word of words) { // optimize this with async await?
+      if (word.length === clue.length && state.pattern.test(word)
+        && checkPastGuesses(notOBO, word)) {
+        out.push(word);
       }
     }
   }
@@ -155,9 +155,9 @@ function constructWordsList(clue) {
   }); // looking for a drier way to do this...
   if (validClue(clue, 0) && !wordGuessed()) {
     const words = getWords(clue);
-    for (let i = 0; i < words.length; i++) {
+    for (const word of words) {
       const item = document.createElement('li');
-      item.innerText = words[i];
+      item.innerText = word;
       newList[0].appendChild(item);
     }
   }
@@ -177,27 +177,27 @@ function findGuessedWords() {
   if (player) {
     const guesses = $(`#boxMessages p[style='color: rgb(0, 0, 0);'] b:contains(${player}:)`).parent().find('span').not('.skribblerHandled')
       .slice(-10);
-    for (let i = 0; i < guesses.length; i++) {
-      const guess = guesses[i].innerText;
-      if (unsafeWindow.dictionary.guessed.indexOf(guess) === -1) {
-        unsafeWindow.dictionary.guessed.push(guess);
-        guesses[i].classList.add('skribblerHandled');
+    guesses.each((i, elem) => {
+      const guessText = elem.innerText;
+      if (unsafeWindow.dictionary.guessed.indexOf(guessText) === -1) {
+        unsafeWindow.dictionary.guessed.push(guessText);
+        elem.classList.add('skribblerHandled');
         constructWordsList(getClueText());
       }
-    }
+    });
   }
 }
 
 function findCloseWords() {
   const close = $("#boxMessages p[style='color: rgb(204, 204, 0); font-weight: bold;'] span:contains( is close!)").not('.skribblerHandled').slice(-10);
-  for (let i = 0; i < close.length; i++) {
-    const text = close[i].innerText.split("'")[1];
+  close.each((i, elem) => {
+    const text = elem.innerText.split("'")[1];
     if (unsafeWindow.dictionary.oneOffWords.indexOf(text) === -1) {
       unsafeWindow.dictionary.oneOffWords.push(text);
-      close[i].classList.add('skribblerHandled');
+      elem.classList.add('skribblerHandled');
       constructWordsList(getClueText());
     }
-  }
+  });
 }
 
 function addToConfirmed(clue, username, password) {
@@ -404,7 +404,7 @@ function fetchWords(username, password) {
               }
             }, 500);
           } else {
-            alert('Confirmed words not retrieved. Please try again later.');
+            alert('Words not retrieved. Please try again later.');
           }
         },
       });

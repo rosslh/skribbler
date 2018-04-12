@@ -8,6 +8,7 @@
   },
   "rules":          {
     "no-alert":     0,
-    "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }]
+    "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
+    "no-restricted-syntax": 0,
     }
 }
