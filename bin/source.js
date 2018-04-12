@@ -8,8 +8,8 @@ const state = {
 };
 
 unsafeWindow.dictionary = {
-  confirmed: [],
   standard: [],
+  confirmed: [],
   oneOffWords: [],
   guessed: [],
   validAnswers: [],
@@ -31,17 +31,18 @@ function getPlayer() {
   return '';
 }
 
-function validClue(clue) {
+function validClue(clue, minCharsFound) {
   const someoneDrawing = $('.drawing').is(':visible');
   const noUnderscore = clue.replace(/_/g, '').length;
   if (someoneDrawing &&
-    ((noUnderscore > 0 && noUnderscore !== clue.length)
-    || unsafeWindow.dictionary.oneOffWords.length > 0)) {
+    (unsafeWindow.dictionary.oneOffWords.length > 0
+      || (noUnderscore >= minCharsFound && noUnderscore !== clue.length))) {
     return true;
+  } else if (!someoneDrawing) {
+    unsafeWindow.dictionary.validAnswers = [];
+    unsafeWindow.dictionary.guessed = [];
+    unsafeWindow.dictionary.oneOffWords = [];
   }
-  unsafeWindow.dictionary.validAnswers = [];
-  unsafeWindow.dictionary.guessed = [];
-  unsafeWindow.dictionary.oneOffWords = [];
   return false;
 }
 
@@ -105,17 +106,24 @@ function getRegex(clue) {
   return new RegExp(`^${clue.replace(/_/g, '[^- ]')}$`);
 }
 
-function getWords(clue, wordsList) {
-  const list = wordsList || unsafeWindow.dictionary.confirmed;
-  if (unsafeWindow.dictionary.validAnswers.length === 0) {
-    unsafeWindow.dictionary.validAnswers = list;
+function getWords(clue) {
+  const dict = unsafeWindow.dictionary;
+  let words;
+  if (dict.validAnswers.length === 0 && dict.guessed.length === 0) {
+    words = dict.confirmed.slice();
+    dict.standard.forEach((item) => {
+      if (words.indexOf(item) === -1) {
+        words.push(item);
+      }
+    });
+  } else {
+    words = dict.validAnswers;
   }
-  const words = unsafeWindow.dictionary.validAnswers;
   const out = [];
   state.pattern = getRegex(clue);
   const notOBO = [];
-  unsafeWindow.dictionary.guessed.forEach((word) => {
-    if (unsafeWindow.dictionary.oneOffWords.indexOf(word) === -1) {
+  dict.guessed.forEach((word) => {
+    if (dict.oneOffWords.indexOf(word) === -1) {
       notOBO.push(word);
     }
   });
@@ -128,10 +136,7 @@ function getWords(clue, wordsList) {
     }
   }
   unsafeWindow.dictionary.validAnswers = out;
-  if (out.length !== 0) {
-    return out;
-  }
-  return getWords(clue, unsafeWindow.dictionary.standard);
+  return out;
 }
 
 function constructWordsList(clue) {
@@ -148,7 +153,7 @@ function constructWordsList(clue) {
     display: state.wordsList.css('display'),
     visibility: state.wordsList.css('visibility'),
   }); // looking for a drier way to do this...
-  if (validClue(clue) && !wordGuessed()) {
+  if (validClue(clue, 0) && !wordGuessed()) {
     const words = getWords(clue);
     for (let i = 0; i < words.length; i++) {
       const item = document.createElement('li');
@@ -276,16 +281,16 @@ function answerShown(username, password) {
 }
 
 function makeGuess(clue) {
-  if (validClue(clue) && !wordGuessed()) {
+  if (validClue(clue, 1) && !wordGuessed()) {
     const words = getWords(clue);
     const confWords = [];
-    unsafeWindow.dictionary.confirmed.forEach((item) => {
-      if (words.indexOf(item) !== -1) {
+    words.forEach((item) => {
+      if (unsafeWindow.dictionary.confirmed.indexOf(item) > -1) {
         confWords.push(item);
       }
     });
     let guess;
-    if (confWords.length !== 0) {
+    if (confWords.length > 0) {
       guess = confWords[Math.floor(Math.random() * confWords.length)];
     } else {
       guess = words[Math.floor(Math.random() * words.length)];
@@ -293,7 +298,7 @@ function makeGuess(clue) {
     const submitProp = Object.keys(unsafeWindow.formChat)
       .filter(k => ~k.indexOf('jQuery'))[0]; // eslint-disable-line no-bitwise
     window.setTimeout(() => {
-      if (getInput().val() === '' && validClue(clue) && !wordGuessed()) {
+      if (getInput().val() === '' && validClue(clue, 1) && !wordGuessed()) {
         getInput().val(guess);
         unsafeWindow.formChat[submitProp].events.submit[0].handler();
       }
@@ -303,11 +308,11 @@ function makeGuess(clue) {
 
 function toggleWordsList() {
   if ($(state.wordsList).is(':visible')) {
-    if (state.wordsList.children().length === 0 || wordGuessed() || !validClue(getClueText())) {
+    if (state.wordsList.children().length === 0 || wordGuessed() || !validClue(getClueText(), 0)) {
       state.wordsList.hide();
     }
   } else if (state.wordsList.is(':hidden')) {
-    if (state.wordsList.children().length > 0 && !wordGuessed() && validClue(getClueText())) {
+    if (state.wordsList.children().length > 0 && !wordGuessed() && validClue(getClueText(), 0)) {
       state.wordsList.show();
     }
   }
@@ -356,7 +361,7 @@ function main(username, password) {
     findGuessedWords();
     toggleWordsList();
     stillHere();
-  }, 800);
+  }, 1000);
   $('#formChat').append($('<div style="background-color:#eee; position:relative; top:-20px; padding:0 5px; width:auto; margin:0;"><input id="guessEnabled" name="guessEnabled" style="width:5px; height:5px; filter: brightness(0.8);" type="checkbox"><label for="guessEnabled" style="all: initial; padding-left:5px;">Enable auto-guesser</label></div>'));
 
   let lastGuess = 0;
@@ -434,16 +439,19 @@ function createAccount(username, password) {
 function getLoginDetails() {
   let username;
   let password;
-  if (prompt('Have you already created your skribbler account? (yes/no)').toLowerCase() === 'yes') {
+  const hasAccount = prompt('Have you already created your skribbler account? (yes/no)').toLowerCase();
+  if (hasAccount === 'yes') {
     username = prompt('Please enter your skribbler username').toLowerCase();
     password = prompt('Please enter your skribbler password');
     fetchWords(username, password);
-  } else {
+  } else if (hasAccount === 'no') {
     username = prompt('Please enter a username').toLowerCase();
     password = prompt('Please enter a unique password');
     if (password === prompt('Reenter password')) {
       createAccount(username, password);
     }
+  } else {
+    getLoginDetails();
   }
 }
 

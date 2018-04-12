@@ -5,13 +5,13 @@
   "main": "skribbler.user.js",
   "scripts": {
     "lint": "eslint --fix bin/source.js",
-    "build": "babel bin/source.js -o bin/part.js && cat bin/metadata.js bin/part.js > skribbler.user.js && rm bin/part.js"
+    "build": "rm -rf bin/tmp && mkdir bin/tmp && babel bin/source.js -o bin/tmp/part1.js && uglifyjs bin/tmp/part1.js -o bin/tmp/part1.js --compress --mangle --toplevel && (printf '%s\n' && cat bin/tmp/part1.js) > bin/tmp/part2.js && cat bin/metadata.js bin/tmp/part2.js > skribbler.user.js && rm -rf bin/tmp"
   },
   "babel": {
     "comments": false,
-    "compact": false,
-    "minified": false,
-    "presets": ["es2015-without-strict"]
+    "presets": [
+      "es2015-without-strict"
+    ]
   },
   "repository": {
     "type": "git",
@@ -28,7 +28,8 @@
     "babel-preset-es2015-without-strict": "^0.0.4",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.10.0"
+    "eslint-plugin-import": "^2.10.0",
+    "uglify-js": "^3.3.20"
   },
   "dependencies": {
     "eslint": "^4.19.1",
