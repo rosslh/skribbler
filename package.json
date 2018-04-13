@@ -1,11 +1,16 @@
 {
   "name": "Skribbler",
-  "version": "2.2.3",
+  "version": "2.3.0",
   "description": "",
   "main": "skribbler.user.js",
   "scripts": {
-    "lint": "eslint --fix bin/source.js",
-    "build": "rm -rf bin/tmp && mkdir bin/tmp && babel bin/source.js -o bin/tmp/part1.js && uglifyjs bin/tmp/part1.js -o bin/tmp/part1.js --compress --mangle --toplevel && (printf '%s\n' && cat bin/tmp/part1.js) > bin/tmp/part2.js && cat bin/metadata.js bin/tmp/part2.js > skribbler.user.js && rm -rf bin/tmp"
+    "lint": "eslint --fix src/source.js",
+    "build": "npm run build-es5; npm run build-es6",
+    "build-es6": "cat src/metadata.js src/source.js > skribbler.user.js",
+    "build-es5": "rm -rf src/tmp && mkdir src/tmp && babel src/source.js -o src/tmp/part1.js && uglifyjs src/tmp/part1.js -o src/tmp/part1.js --compress --mangle --toplevel && npm run prepend-message && cat src/metadata.js src/tmp/part2.js > es5.user.js && rm -rf src/tmp",
+    "build-es5-tidy": "rm -rf src/tmp && mkdir src/tmp && babel src/source.js -o src/tmp/part1.js && npm run prepend-message && cat src/metadata.js src/tmp/part2.js > es5.user.js && rm -rf src/tmp",
+    "prepend-message": "(printf '%s\n\/\/ This code has been compiled and minified. The source code and build script can be found on Github.\n\n' && cat src/tmp/part1.js) > src/tmp/part2.js"
+
   },
   "babel": {
     "comments": false,
@@ -25,15 +30,16 @@
   "homepage": "https://github.com/rosslh/skribbler#readme",
   "devDependencies": {
     "babel-cli": "^6.26.0",
+    "babel-core": "^6.0.20",
     "babel-preset-es2015-without-strict": "^0.0.4",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.10.0",
     "uglify-js": "^3.3.20"
   },
   "dependencies": {
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.10.0"
+    "eslint-plugin-import": "^2.10.0",
+    "babel-core": "^6.0.20"
   }
 }

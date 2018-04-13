@@ -33,10 +33,10 @@ function getPlayer() {
 
 function validClue(clue, minCharsFound) {
   const someoneDrawing = $('.drawing').is(':visible');
-  const noUnderscore = clue.replace(/_/g, '').length;
+  const charsFound = clue.replace(/_|-| /g, '').length; // /_/g
   if (someoneDrawing &&
     (unsafeWindow.dictionary.oneOffWords.length > 0
-      || (noUnderscore >= minCharsFound && noUnderscore !== clue.length))) {
+      || (charsFound >= minCharsFound && charsFound !== clue.length))) {
     return true;
   } else if (!someoneDrawing) {
     unsafeWindow.dictionary.validAnswers = [];
@@ -106,62 +106,59 @@ function getRegex(clue) {
   return new RegExp(`^${clue.replace(/_/g, '[^- ]')}$`);
 }
 
+function filterWords(words, notOBO, clue) {
+  const out = [];
+  for (const word of words) { // optimize this with async await?
+    if (word.length === clue.length && state.pattern.test(word)
+      && checkPastGuesses(notOBO, word)) {
+      out.push(word);
+    }
+  }
+  return out.sort();
+}
+
 function getWords(clue) {
   const dict = unsafeWindow.dictionary;
   let words;
   if (dict.validAnswers.length === 0) { // && dict.guessed.length === 0
     words = dict.confirmed.slice();
-    dict.standard.forEach((item) => {
+    for (const item of dict.standard) {
       if (words.indexOf(item) === -1) {
         words.push(item);
       }
-    });
+    }
   } else {
     words = dict.validAnswers;
   }
-  const out = [];
   state.pattern = getRegex(clue);
   const notOBO = [];
-  dict.guessed.forEach((word) => {
+  for (const word of dict.guessed) {
     if (dict.oneOffWords.indexOf(word) === -1) {
       notOBO.push(word);
     }
-  });
-  if (!wordGuessed()) {
-    for (const word of words) { // optimize this with async await?
-      if (word.length === clue.length && state.pattern.test(word)
-        && checkPastGuesses(notOBO, word)) {
-        out.push(word);
-      }
-    }
   }
-  unsafeWindow.dictionary.validAnswers = out;
-  return out;
+  if (!wordGuessed()) {
+    dict.validAnswers = filterWords(words, notOBO, clue);
+  } else {
+    dict.validAnswers = [];
+  }
+  return dict.validAnswers;
 }
 
 function constructWordsList(clue) {
   const newList = $(document.createElement('ul'));
-  newList.css({
-    width: '70%',
-    margin: '0 auto',
-    'margin-top': '10px',
-    'background-color': '#eee',
-    padding: '4px',
-    'border-radius': '2px',
-    'list-style-position': 'inside',
-    columns: '4',
-    display: state.wordsList.css('display'),
-    visibility: state.wordsList.css('visibility'),
-  }); // looking for a drier way to do this...
   if (validClue(clue, 0) && !wordGuessed()) {
     const words = getWords(clue);
     for (const word of words) {
       const item = document.createElement('li');
-      item.innerText = word;
+      if (unsafeWindow.dictionary.confirmed.indexOf(word) > -1) {
+        item.innerHTML = `<strong>${word}</strong>`;
+      } else item.innerText = word;
       newList[0].appendChild(item);
     }
   }
   state.wordsList.html(newList.html());
+  state.wordsList.css({ width: `${$(document).width() - $('#containerChat').width() - 15}px` });
 }
 
 function getClue() {
@@ -282,13 +279,13 @@ function answerShown(username, password) {
 
 function makeGuess(clue) {
   if (validClue(clue, 1) && !wordGuessed()) {
-    const words = getWords(clue);
+    const words = unsafeWindow.dictionary.validAnswers;
     const confWords = [];
-    words.forEach((item) => {
+    for (const item of words) {
       if (unsafeWindow.dictionary.confirmed.indexOf(item) > -1) {
         confWords.push(item);
       }
-    });
+    }
     let guess;
     if (confWords.length > 0) {
       guess = confWords[Math.floor(Math.random() * confWords.length)];
@@ -311,15 +308,14 @@ function toggleWordsList() {
     if (state.wordsList.children().length === 0 || wordGuessed() || !validClue(getClueText(), 0)) {
       state.wordsList.hide();
     }
-  } else if (state.wordsList.is(':hidden')) {
-    if (state.wordsList.children().length > 0 && !wordGuessed() && validClue(getClueText(), 0)) {
-      state.wordsList.show();
-    }
+  } else if (state.wordsList.children().length > 0
+    && !wordGuessed() && validClue(getClueText(), 0)) {
+    state.wordsList.show();
   }
 }
 
 function stillHere() {
-  if ($('.modal-dialog:contains(Are you still here?)').is(':visible') && document.hidden) {
+  if (document.hidden && $('.modal-dialog:contains(Are you still here?)').is(':visible')) {
     alert('Action required.');
   }
 }
@@ -342,7 +338,6 @@ function main(username, password) {
   });
   state.wordsList.css({
     width: '70%',
-    margin: '0 auto',
     'margin-top': '10px',
     'background-color': '#eee',
     padding: '4px',
@@ -362,12 +357,16 @@ function main(username, password) {
     toggleWordsList();
     stillHere();
   }, 1000);
-  $('#formChat').append($('<div style="background-color:#eee; position:relative; top:-20px; padding:0 5px; width:auto; margin:0;"><input id="guessEnabled" name="guessEnabled" style="width:5px; height:5px; filter: brightness(0.8);" type="checkbox"><label for="guessEnabled" style="all: initial; padding-left:5px;">Enable auto-guesser</label></div>'));
+  $('#boxChatInput').append($(`<div style="background-color:#eee; position:relative; top:-20px; padding:0 5px; width:auto; margin:0;">
+<input id="guessEnabled" name="guessEnabled" style="width:6px; height:6px;" type="checkbox">
+<label for="guessEnabled" style="all: initial; padding-left:5px;">Enable auto-guesser</label><br>
+<label for="guessRate" style="all: initial; padding-right:5px;">Guess frequency (seconds):</label>
+<input id="guessRate" name="guessRate" type="number" step="0.5" min="1" value="1.5" style="width:4em;"></div>`));
 
   let lastGuess = 0;
   let lastTyped = 0;
   window.setInterval(() => {
-    if ($('#guessEnabled').is(':checked') && Date.now() - lastTyped > 1500 && Date.now() - lastGuess > 1500) {
+    if ($('#guessEnabled').is(':checked') && Date.now() - lastTyped >= 1500 && Date.now() - lastGuess >= 1000 * $('#guessRate').val()) {
       lastGuess = Date.now();
       makeGuess(getClueText());
     }
