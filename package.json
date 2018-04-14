@@ -6,12 +6,11 @@
   "scripts": {
     "lint": "eslint --fix src/source.js",
     "build": "npm run build-es5 && npm run build-es6 && npm run build-admin",
-    "build-admin": "cat src/metadata.js src/admin.js src/source.js > admin.user.js",
-    "build-es6": "cat src/metadata.js src/source.js > skribbler.user.js",
+    "build-admin": "rm -rf src/tmp && mkdir src/tmp && babel --no-babelrc --no-comments src/admin.js -o src/tmp/admin.js && cat skribbler.user.js src/tmp/admin.js > admin.user.js && rm -rf src/tmp",
+    "build-es6": "rm -rf src/tmp && mkdir src/tmp && babel --no-babelrc --no-comments src/source.js -o src/tmp/source.js && cat src/metadata.js src/tmp/source.js > skribbler.user.js",
     "build-es5": "rm -rf src/tmp && mkdir src/tmp && babel src/source.js -o src/tmp/part1.js && uglifyjs src/tmp/part1.js -o src/tmp/part1.js --compress --mangle --toplevel && npm run prepend-message && cat src/metadata.js src/tmp/part2.js > es5.user.js && rm -rf src/tmp",
     "build-es5-tidy": "rm -rf src/tmp && mkdir src/tmp && babel src/source.js -o src/tmp/part1.js && npm run prepend-message && cat src/metadata.js src/tmp/part2.js > es5.user.js && rm -rf src/tmp",
     "prepend-message": "(printf '%s\n\/\/ This code has been compiled and minified. The source code and build script can be found on Github.\n\n' && cat src/tmp/part1.js) > src/tmp/part2.js"
-
   },
   "babel": {
     "comments": false,

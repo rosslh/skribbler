@@ -343,7 +343,7 @@ function main(username, password) {
 <input id="guessEnabled" name="guessEnabled" style="width:6px; height:6px;" type="checkbox">
 <label for="guessEnabled" style="all: initial; padding-left:5px;">Enable auto-guesser</label><br>
 <label for="guessRate" style="all: initial; padding-right:5px;">Guess frequency (seconds):</label>
-<input id="guessRate" name="guessRate" type="number" step="0.1" min="0.5" value="1.5" style="width:4em;"></div>`));
+<input id="guessRate" name="guessRate" type="number" step="0.5" min="1" value="1.5" style="width:4em;"></div>`));
 
   let lastGuess = 0;
   let lastTyped = 0;

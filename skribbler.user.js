@@ -17,7 +17,7 @@ const state = {
   wordsList: $(document.createElement('ul')),
   prevClue: '',
   links: document.createElement('strong'),
-  prevAnswer: '',
+  prevAnswer: ''
 };
 
 unsafeWindow.dictionary = {
@@ -25,13 +25,13 @@ unsafeWindow.dictionary = {
   confirmed: [],
   oneOffWords: [],
   guessed: [],
-  validAnswers: [],
+  validAnswers: []
 };
 
 function scrollDown() {
   if ($('#screenGame').is(':visible') && $(this).scrollTop() < $('#screenGame').offset().top) {
     $('html, body').animate({
-      scrollTop: $('#screenGame').offset().top,
+      scrollTop: $('#screenGame').offset().top
     }, 1000);
   }
 }
@@ -46,10 +46,8 @@ function getPlayer() {
 
 function validClue(clue, minCharsFound) {
   const someoneDrawing = $('.drawing').is(':visible');
-  const charsFound = clue.replace(/_|-| /g, '').length; // /_/g
-  if (someoneDrawing &&
-    (unsafeWindow.dictionary.oneOffWords.length > 0
-      || (charsFound >= minCharsFound && charsFound !== clue.length))) {
+  const charsFound = clue.replace(/_|-| /g, '').length;
+  if (someoneDrawing && (unsafeWindow.dictionary.oneOffWords.length > 0 || charsFound >= minCharsFound && charsFound !== clue.length)) {
     return true;
   } else if (!someoneDrawing) {
     unsafeWindow.dictionary.validAnswers = [];
@@ -121,9 +119,8 @@ function getRegex(clue) {
 
 function filterWords(words, notOBO, clue) {
   const out = [];
-  for (const word of words) { // optimize this with async await?
-    if (word.length === clue.length && state.pattern.test(word)
-      && checkPastGuesses(notOBO, word)) {
+  for (const word of words) {
+    if (word.length === clue.length && state.pattern.test(word) && checkPastGuesses(notOBO, word)) {
       out.push(word);
     }
   }
@@ -133,7 +130,7 @@ function filterWords(words, notOBO, clue) {
 function getWords(clue) {
   const dict = unsafeWindow.dictionary;
   let words;
-  if (dict.validAnswers.length === 0) { // && dict.guessed.length === 0
+  if (dict.validAnswers.length === 0) {
     words = dict.confirmed.slice();
     for (const item of dict.standard) {
       if (words.indexOf(item) === -1) {
@@ -185,8 +182,7 @@ function getClueText() {
 function findGuessedWords() {
   const player = getPlayer();
   if (player) {
-    const guesses = $(`#boxMessages p[style='color: rgb(0, 0, 0);'] b:contains(${player}:)`).parent().find('span').not('.skribblerHandled')
-      .slice(-10);
+    const guesses = $(`#boxMessages p[style='color: rgb(0, 0, 0);'] b:contains(${player}:)`).parent().find('span').not('.skribblerHandled').slice(-10);
     guesses.each((i, elem) => {
       const guessText = elem.innerText;
       if (unsafeWindow.dictionary.guessed.indexOf(guessText) === -1) {
@@ -265,8 +261,8 @@ function answerShown(username, password) {
       unsafeWindow.dictionary.oneOffWords = [];
       unsafeWindow.dictionary.guessed = [];
       unsafeWindow.dictionary.validAnswers = [];
-      if (typeof admin !== 'undefined') { // eslint-disable-line no-undef
-        addToConfirmed(answer, username, password); // eslint-disable-line no-undef
+      if (typeof admin !== 'undefined') {
+        addToConfirmed(answer, username, password);
       }
     }
   }
@@ -287,14 +283,13 @@ function makeGuess(clue) {
     } else {
       guess = words[Math.floor(Math.random() * words.length)];
     }
-    const submitProp = Object.keys(unsafeWindow.formChat)
-      .filter(k => ~k.indexOf('jQuery'))[0]; // eslint-disable-line no-bitwise
+    const submitProp = Object.keys(unsafeWindow.formChat).filter(k => ~k.indexOf('jQuery'))[0];
     window.setTimeout(() => {
       if (getInput().val() === '' && validClue(clue, 1) && !wordGuessed()) {
         getInput().val(guess);
         unsafeWindow.formChat[submitProp].events.submit[0].handler();
       }
-    }, Math.floor((Math.random() * 800)));
+    }, Math.floor(Math.random() * 800));
   }
 }
 
@@ -303,8 +298,7 @@ function toggleWordsList() {
     if (state.wordsList.children().length === 0 || wordGuessed() || !validClue(getClueText(), 0)) {
       state.wordsList.hide();
     }
-  } else if (state.wordsList.children().length > 0
-    && !wordGuessed() && validClue(getClueText(), 0)) {
+  } else if (state.wordsList.children().length > 0 && !wordGuessed() && validClue(getClueText(), 0)) {
     state.wordsList.show();
   }
 }
@@ -318,18 +312,18 @@ function stillHere() {
 function main(username, password) {
   $('#audio').css({
     left: 'unset',
-    right: '0px',
-  }); // so it doesn't cover timer
+    right: '0px'
+  });
   window.setInterval(scrollDown, 2000);
   $(state.links).css({
-    padding: '0 1em 0 1em',
+    padding: '0 1em 0 1em'
   });
   getClue().after(state.links);
   const formArea = $('#formChat')[0];
   $(state.content).css({
     position: 'relative',
     left: '295px',
-    top: '-25px',
+    top: '-25px'
   });
   state.wordsList.css({
     width: '70%',
@@ -338,7 +332,7 @@ function main(username, password) {
     padding: '4px',
     'border-radius': '2px',
     'list-style-position': 'inside',
-    columns: '4',
+    columns: '4'
   });
   formArea.appendChild(state.content);
   $('#screenGame')[0].appendChild(state.wordsList[0]);
@@ -356,7 +350,7 @@ function main(username, password) {
 <input id="guessEnabled" name="guessEnabled" style="width:6px; height:6px;" type="checkbox">
 <label for="guessEnabled" style="all: initial; padding-left:5px;">Enable auto-guesser</label><br>
 <label for="guessRate" style="all: initial; padding-right:5px;">Guess frequency (seconds):</label>
-<input id="guessRate" name="guessRate" type="number" step="0.1" min="0.5" value="1.5" style="width:4em;"></div>`));
+<input id="guessRate" name="guessRate" type="number" step="0.5" min="1" value="1.5" style="width:4em;"></div>`));
 
   let lastGuess = 0;
   let lastTyped = 0;
@@ -386,7 +380,7 @@ function fetchWords(username, password) {
           main(username, password);
         }
       }, 1000);
-    },
+    }
   });
 }
 
@@ -401,14 +395,13 @@ function getLoginDetails(isAdmin) {
 }
 
 $(document).ready(() => {
-  if (typeof GM === 'undefined') { // polyfill GM4
-    GM = { // eslint-disable-line no-global-assign
-      xmlHttpRequest: GM_xmlhttpRequest, // eslint-disable-line camelcase
-    };
+  if (typeof GM === 'undefined') {
+    GM = {
+      xmlHttpRequest: GM_xmlhttpRequest };
   }
   const activate = $('<button>Activate skribbler</button>');
   activate.css({
-    'font-size': '0.6em',
+    'font-size': '0.6em'
   });
   $('.loginPanelTitle').first().append(activate);
   activate.click(() => {
