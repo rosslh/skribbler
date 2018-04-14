@@ -5,7 +5,8 @@
   "main": "skribbler.user.js",
   "scripts": {
     "lint": "eslint --fix src/source.js",
-    "build": "npm run build-es5; npm run build-es6",
+    "build": "npm run build-es5 && npm run build-es6 && npm run build-admin",
+    "build-admin": "cat src/metadata.js src/admin.js src/source.js > admin.user.js",
     "build-es6": "cat src/metadata.js src/source.js > skribbler.user.js",
     "build-es5": "rm -rf src/tmp && mkdir src/tmp && babel src/source.js -o src/tmp/part1.js && uglifyjs src/tmp/part1.js -o src/tmp/part1.js --compress --mangle --toplevel && npm run prepend-message && cat src/metadata.js src/tmp/part2.js > es5.user.js && rm -rf src/tmp",
     "build-es5-tidy": "rm -rf src/tmp && mkdir src/tmp && babel src/source.js -o src/tmp/part1.js && npm run prepend-message && cat src/metadata.js src/tmp/part2.js > es5.user.js && rm -rf src/tmp",

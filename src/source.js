@@ -158,7 +158,7 @@ function constructWordsList(clue) {
     }
   }
   state.wordsList.html(newList.html());
-  state.wordsList.css({ width: `${$(document).width() - $('#containerChat').width() - 15}px` });
+  state.wordsList.css({ width: `${$(document).width() - $('#containerChat').width() - 40}px` });
 }
 
 function getClue() {
@@ -194,26 +194,6 @@ function findCloseWords() {
       elem.classList.add('skribblerHandled');
       constructWordsList(getClueText());
     }
-  });
-}
-
-function addToConfirmed(clue, username, password) {
-  GM.xmlHttpRequest({
-    method: 'POST',
-    data: JSON.stringify({
-      word: clue,
-    }),
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-    },
-    url: 'https://skribbler.herokuapp.com/api/words',
-    onload(response) {
-      if ((response.status < 200 || response.status >= 300)
-        && response.status !== 409) {
-        alert(`Could not add '${clue}' to your confirmed words.`);
-      }
-    },
   });
 }
 
@@ -272,7 +252,9 @@ function answerShown(username, password) {
       unsafeWindow.dictionary.oneOffWords = [];
       unsafeWindow.dictionary.guessed = [];
       unsafeWindow.dictionary.validAnswers = [];
-      addToConfirmed(answer, username, password);
+      if (typeof admin !== 'undefined') { // eslint-disable-line no-undef
+        addToConfirmed(answer, username, password); // eslint-disable-line no-undef
+      }
     }
   }
 }
@@ -361,7 +343,7 @@ function main(username, password) {
 <input id="guessEnabled" name="guessEnabled" style="width:6px; height:6px;" type="checkbox">
 <label for="guessEnabled" style="all: initial; padding-left:5px;">Enable auto-guesser</label><br>
 <label for="guessRate" style="all: initial; padding-right:5px;">Guess frequency (seconds):</label>
-<input id="guessRate" name="guessRate" type="number" step="0.5" min="1" value="1.5" style="width:4em;"></div>`));
+<input id="guessRate" name="guessRate" type="number" min="0.5" value="1.5" style="width:4em;"></div>`));
 
   let lastGuess = 0;
   let lastTyped = 0;
@@ -370,7 +352,7 @@ function main(username, password) {
       lastGuess = Date.now();
       makeGuess(getClueText());
     }
-  }, 1000);
+  }, 500);
   getInput().keyup(() => {
     lastTyped = Date.now();
   });
@@ -380,78 +362,29 @@ function main(username, password) {
 function fetchWords(username, password) {
   GM.xmlHttpRequest({
     method: 'GET',
-    url: 'https://skribbler.herokuapp.com/api/default',
-    headers: {
-      Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-    },
-    onload(response1) {
-      unsafeWindow.dictionary.standard = JSON.parse(response1.responseText);
-      GM.xmlHttpRequest({
-        method: 'GET',
-        url: 'https://skribbler.herokuapp.com/api/words',
-        headers: {
-          Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-        },
-        onload(response2) {
-          if (response2.status < 300 && response2.status >= 200) {
-            alert('Login successful, words retrieved.');
-            unsafeWindow.dictionary.confirmed = JSON.parse(response2.responseText);
-            const run = window.setInterval(() => {
-              if (getClue()) {
-                clearInterval(run);
-                main(username, password);
-              }
-            }, 500);
-          } else {
-            alert('Words not retrieved. Please try again later.');
-          }
-        },
-      });
+    url: 'https://skribbler.herokuapp.com/api/words',
+    onload(res) {
+      const response = JSON.parse(res.responseText);
+      unsafeWindow.dictionary.standard = response.default;
+      unsafeWindow.dictionary.confirmed = response.confirmed;
+      const run = window.setInterval(() => {
+        if (getClue()) {
+          clearInterval(run);
+          main(username, password);
+        }
+      }, 1000);
     },
   });
 }
 
-function createAccount(username, password) {
-  GM.xmlHttpRequest({
-    method: 'POST',
-    data: JSON.stringify({
-      username,
-      password,
-    }),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    url: 'https://skribbler.herokuapp.com/api/users',
-    onload(response) {
-      if (response.status === 201) {
-        alert('User created.');
-        fetchWords(username, password);
-      } else if (response.status === 409) {
-        alert('User already exists. Please reload and try another username.');
-      } else {
-        alert('User creation unsuccessful. Please try again later.');
-      }
-    },
-  });
-}
-
-function getLoginDetails() {
-  let username;
-  let password;
-  const hasAccount = prompt('Have you already created your skribbler account? (yes/no)').toLowerCase();
-  if (hasAccount === 'yes') {
+function getLoginDetails(isAdmin) {
+  let username = '';
+  let password = '';
+  if (isAdmin) {
     username = prompt('Please enter your skribbler username').toLowerCase();
     password = prompt('Please enter your skribbler password');
-    fetchWords(username, password);
-  } else if (hasAccount === 'no') {
-    username = prompt('Please enter a username').toLowerCase();
-    password = prompt('Please enter a unique password');
-    if (password === prompt('Reenter password')) {
-      createAccount(username, password);
-    }
-  } else {
-    getLoginDetails();
   }
+  fetchWords(username, password);
 }
 
 $(document).ready(() => {
@@ -467,6 +400,10 @@ $(document).ready(() => {
   $('.loginPanelTitle').first().append(activate);
   activate.click(() => {
     activate.hide();
-    getLoginDetails();
+    if (typeof admin !== 'undefined') {
+      getLoginDetails('admin');
+    } else {
+      getLoginDetails();
+    }
   });
 });
