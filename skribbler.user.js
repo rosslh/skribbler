@@ -47,7 +47,8 @@ function getPlayer() {
 function validClue(clue, minCharsFound) {
   const someoneDrawing = $('.drawing').is(':visible');
   const charsFound = clue.replace(/_|-| /g, '').length;
-  if (someoneDrawing && (unsafeWindow.dictionary.oneOffWords.length > 0 || charsFound >= minCharsFound && charsFound !== clue.length)) {
+  const noUnderscores = clue.replace(/_/g, '').length;
+  if (someoneDrawing && (unsafeWindow.dictionary.oneOffWords.length > 0 || charsFound >= minCharsFound && noUnderscores !== clue.length)) {
     return true;
   } else if (!someoneDrawing) {
     unsafeWindow.dictionary.validAnswers = [];
@@ -289,7 +290,7 @@ function makeGuess(clue) {
         getInput().val(guess);
         unsafeWindow.formChat[submitProp].events.submit[0].handler();
       }
-    }, Math.floor(Math.random() * 800));
+    }, Math.floor(Math.random() * ($('#guessRate').val() / 3)));
   }
 }
 
@@ -384,13 +385,9 @@ function fetchWords(username, password) {
   });
 }
 
-function getLoginDetails(isAdmin) {
-  let username = '';
-  let password = '';
-  if (isAdmin) {
-    username = prompt('Please enter your skribbler username').toLowerCase();
-    password = prompt('Please enter your skribbler password');
-  }
+function getLoginDetails() {
+  const username = prompt('Please enter your skribbler username').toLowerCase();
+  const password = prompt('Please enter your skribbler password');
   fetchWords(username, password);
 }
 
@@ -399,7 +396,10 @@ $(document).ready(() => {
     GM = {
       xmlHttpRequest: GM_xmlhttpRequest };
   }
-  const activate = $('<button>Activate skribbler</button>');
+  let activate;
+  if (typeof admin !== 'undefined') {
+    activate = $('<button>Activate skribbler (admin)</button>');
+  } else activate = $('<button>Activate skribbler</button>');
   activate.css({
     'font-size': '0.6em'
   });
@@ -407,9 +407,9 @@ $(document).ready(() => {
   activate.click(() => {
     activate.hide();
     if (typeof admin !== 'undefined') {
-      getLoginDetails('admin');
-    } else {
       getLoginDetails();
+    } else {
+      fetchWords('', '');
     }
   });
 });
