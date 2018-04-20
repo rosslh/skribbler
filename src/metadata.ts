@@ -2,11 +2,10 @@
 // @name Skribbler
 // @namespace https://rosshill.ca
 // @match *://skribbl.io/*
-// @version 2.3.0
+// @version 2.4.0
 // @author Ross Hill
 // @icon https://skribbl.io/res/favicon.png
 // @homepageURL https://github.com/rosslh/skribbler
-// @connect skribbler.herokuapp.com
 // @require http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
 // @grant GM.xmlHttpRequest
 // @grant GM_xmlhttpRequest

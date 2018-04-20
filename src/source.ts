@@ -1,37 +1,37 @@
-const state = {
-  pattern: '',
+const state: any = {
   content: document.createElement('span'),
-  wordsList: $(document.createElement('ul')),
-  prevClue: '',
   links: document.createElement('strong'),
+  pattern: '',
   prevAnswer: '',
+  prevClue: '',
+  wordsList: $(document.createElement('ul')),
 };
 
 unsafeWindow.dictionary = {
-  standard: [],
   confirmed: [],
-  oneOffWords: [],
   guessed: [],
+  oneOffWords: [],
+  standard: [],
   validAnswers: [],
 };
 
-function scrollDown() {
-  if ($('#screenGame').is(':visible') && $(this).scrollTop() < $('#screenGame').offset().top) {
+function scrollDown(): void {
+  if ($('#screenGame').is(':visible') && $('html').scrollTop() < $('#screenGame').offset().top) {
     $('html, body').animate({
       scrollTop: $('#screenGame').offset().top,
-    }, 1000);
+    }, 1000); // tslint:disable-line
   }
 }
 
-function getPlayer() {
-  const nameElem = $(".info .name[style='color: rgb(0, 0, 255);")[0];
+function getPlayer(): string {
+  const nameElem = $('.info .name[style="color: rgb(0, 0, 255);')[0];
   if (typeof nameElem !== 'undefined') {
     return nameElem.innerText.split(' (')[0];
   }
   return '';
 }
 
-function validClue(clue, minCharsFound) {
+function validClue(clue: string, minCharsFound: number): boolean {
   const someoneDrawing = $('.drawing').is(':visible');
   const charsFound = clue.replace(/_|-| /g, '').length;
   const noUnderscores = clue.replace(/_/g, '').length;
@@ -39,7 +39,7 @@ function validClue(clue, minCharsFound) {
     (unsafeWindow.dictionary.oneOffWords.length > 0
       || (charsFound >= minCharsFound && noUnderscores !== clue.length))) {
     return true;
-  } else if (!someoneDrawing) {
+  } if (!someoneDrawing) {
     unsafeWindow.dictionary.validAnswers = [];
     unsafeWindow.dictionary.guessed = [];
     unsafeWindow.dictionary.oneOffWords = [];
@@ -47,8 +47,8 @@ function validClue(clue, minCharsFound) {
   return false;
 }
 
-function wordGuessed() {
-  if ($(".guessedWord .info .name[style='color: rgb(0, 0, 255);']").length) {
+function wordGuessed(): boolean {
+  if ($('.guessedWord .info .name[style="color: rgb(0, 0, 255);"]').length) {
     unsafeWindow.dictionary.validAnswers = [];
     unsafeWindow.dictionary.guessed = [];
     unsafeWindow.dictionary.oneOffWords = [];
@@ -57,7 +57,7 @@ function wordGuessed() {
   return false;
 }
 
-function missingChar(short, long) {
+function missingChar(short: string, long: string): boolean {
   for (let i = 1; i < long.length + 1; i++) {
     if (short === long.substring(0, i - 1) + long.substring(i, long.length)) {
       return true;
@@ -66,7 +66,7 @@ function missingChar(short, long) {
   return false;
 }
 
-function oneOff(listWord, guessedWord) {
+function oneOff(listWord: string, guessedWord: string): boolean {
   if (listWord.length === guessedWord.length) {
     let wrongLetters = 0;
     for (let i = 0; i < listWord.length; i++) {
@@ -78,15 +78,15 @@ function oneOff(listWord, guessedWord) {
       }
     }
     return wrongLetters === 1;
-  } else if (listWord.length === guessedWord.length - 1) {
+  } if (listWord.length === guessedWord.length - 1) {
     return missingChar(listWord, guessedWord);
-  } else if (guessedWord.length === listWord.length - 1) {
+  } if (guessedWord.length === listWord.length - 1) {
     return missingChar(guessedWord, listWord);
   }
   return false;
 }
 
-function checkPastGuesses(notOBO, word) {
+function checkPastGuesses(notOBO: string[], word: string): boolean {
   if (unsafeWindow.dictionary.guessed.indexOf(word) !== -1) {
     return false;
   }
@@ -103,11 +103,11 @@ function checkPastGuesses(notOBO, word) {
   return true;
 }
 
-function getRegex(clue) {
+function getRegex(clue: string): any {
   return new RegExp(`^${clue.replace(/_/g, '[^- ]')}$`);
 }
 
-function filterWords(words, notOBO, clue) {
+function filterWords(words: string[], notOBO: string[], clue: string): string[] {
   const out = [];
   for (const word of words) { // optimize this with async await?
     if (word.length === clue.length && state.pattern.test(word)
@@ -118,7 +118,7 @@ function filterWords(words, notOBO, clue) {
   return out.sort();
 }
 
-function getWords(clue) {
+function getWords(clue: string): string[] {
   const dict = unsafeWindow.dictionary;
   let words;
   if (dict.validAnswers.length === 0) { // && dict.guessed.length === 0
@@ -146,7 +146,7 @@ function getWords(clue) {
   return dict.validAnswers;
 }
 
-function constructWordsList(clue) {
+function constructWordsList(clue: string): void {
   const newList = $(document.createElement('ul'));
   if (validClue(clue, 0) && !wordGuessed()) {
     const words = getWords(clue);
@@ -162,20 +162,20 @@ function constructWordsList(clue) {
   state.wordsList.css({ width: `${$(document).width() - $('#containerChat').width() - 40}px` });
 }
 
-function getClue() {
+function getClue(): any {
   return $('#currentWord');
 }
 
-function getClueText() {
+function getClueText(): string {
   return getClue()[0].textContent.toLowerCase();
 }
 
-function findGuessedWords() {
+function findGuessedWords(): void {
   const player = getPlayer();
   if (player) {
-    const guesses = $(`#boxMessages p[style='color: rgb(0, 0, 0);'] b:contains(${player}:)`).parent().find('span').not('.skribblerHandled')
-      .slice(-10);
-    guesses.each((i, elem) => {
+    const guesses = $(`#boxMessages p[style='color: rgb(0, 0, 0);'] b:contains(${player}:)`)
+      .parent().find('span').not('.skribblerHandled').slice(-10);
+    guesses.each((i: number, elem: any) => {
       const guessText = elem.innerText;
       if (unsafeWindow.dictionary.guessed.indexOf(guessText) === -1) {
         unsafeWindow.dictionary.guessed.push(guessText);
@@ -186,9 +186,10 @@ function findGuessedWords() {
   }
 }
 
-function findCloseWords() {
-  const close = $("#boxMessages p[style='color: rgb(204, 204, 0); font-weight: bold;'] span:contains( is close!)").not('.skribblerHandled').slice(-10);
-  close.each((i, elem) => {
+function findCloseWords(): void {
+  const close = $("#boxMessages p[style='color: rgb(204, 204, 0); font-weight: bold;'] span:contains( is close!)")
+    .not('.skribblerHandled').slice(-10);
+  close.each((i: number, elem: any) => {
     const text = elem.innerText.split("'")[1];
     if (unsafeWindow.dictionary.oneOffWords.indexOf(text) === -1) {
       unsafeWindow.dictionary.oneOffWords.push(text);
@@ -198,11 +199,11 @@ function findCloseWords() {
   });
 }
 
-function getInput() {
+function getInput(): any {
   return $('#inputChat');
 }
 
-function validateInput() {
+function validateInput(): void {
   const word = getClueText();
   const input = getInput()[0];
   const remaining = word.length - input.value.length;
@@ -225,16 +226,18 @@ function validateInput() {
   }
 }
 
-function showDrawLinks(clueText) {
+function showDrawLinks(clueText: string): void {
   if (clueText.length > 0 && clueText.indexOf('_') === -1) {
-    state.links.innerHTML = `<a style='color: blue' target='_blank' href='https://www.google.ca/search?tbm=isch&q=${clueText}'>Images</a>, `;
-    state.links.innerHTML += `<a style='color: blue' target='_blank' href='https://www.google.ca/search?tbm=isch&tbs=itp:lineart&q=${clueText}'>Line art</a>`;
+    state.links.innerHTML = `<a style='color: blue' target='_blank'
+href='https://www.google.ca/search?tbm=isch&q=${clueText}'>Images</a>, `;
+    state.links.innerHTML += `<a style='color: blue' target='_blank'
+href='https://www.google.ca/search?tbm=isch&tbs=itp:lineart&q=${clueText}'>Line art</a>`;
   } else {
     state.links.innerHTML = '';
   }
 }
 
-function clueChanged() {
+function clueChanged(): void {
   const clue = getClueText();
   if (clue !== state.prevClue) {
     state.prevClue = clue;
@@ -244,7 +247,7 @@ function clueChanged() {
   }
 }
 
-function answerShown(username, password) {
+function answerShown(username: string, password: string): void {
   let answer = $('#overlay .content .text')[0].innerText;
   if (answer.slice(0, 14) === 'The word was: ') {
     answer = answer.slice(14);
@@ -253,14 +256,14 @@ function answerShown(username, password) {
       unsafeWindow.dictionary.oneOffWords = [];
       unsafeWindow.dictionary.guessed = [];
       unsafeWindow.dictionary.validAnswers = [];
-      if (typeof admin !== 'undefined') { // eslint-disable-line no-undef
-        addToConfirmed(answer, username, password); // eslint-disable-line no-undef
+      if (admin) {
+        handleWord(answer, username, password);
       }
     }
   }
 }
 
-function makeGuess(clue) {
+function makeGuess(clue: string): void {
   if (validClue(clue, 1) && !wordGuessed()) {
     const words = unsafeWindow.dictionary.validAnswers;
     const confWords = [];
@@ -269,24 +272,24 @@ function makeGuess(clue) {
         confWords.push(item);
       }
     }
-    let guess;
+    let guess: string;
     if (confWords.length > 0) {
       guess = confWords[Math.floor(Math.random() * confWords.length)];
     } else {
       guess = words[Math.floor(Math.random() * words.length)];
     }
     const submitProp = Object.keys(unsafeWindow.formChat)
-      .filter(k => ~k.indexOf('jQuery'))[0]; // eslint-disable-line no-bitwise
+      .filter((k: string) => ~k.indexOf('jQuery'))[0]; // tslint:disable-line no-bitwise
     window.setTimeout(() => {
       if (getInput().val() === '' && validClue(clue, 1) && !wordGuessed()) {
         getInput().val(guess);
         unsafeWindow.formChat[submitProp].events.submit[0].handler();
       }
-    }, Math.floor((Math.random() * ($('#guessRate').val() / 3))));
+    }, Math.floor((Math.random() * (Number($('#guessRate').val()) / 3))));
   }
 }
 
-function toggleWordsList() {
+function toggleWordsList(): void {
   if ($(state.wordsList).is(':visible')) {
     if (state.wordsList.children().length === 0 || wordGuessed() || !validClue(getClueText(), 0)) {
       state.wordsList.hide();
@@ -297,13 +300,13 @@ function toggleWordsList() {
   }
 }
 
-function stillHere() {
+function stillHere(): void {
   if (document.hidden && $('.modal-dialog:contains(Are you still here?)').is(':visible')) {
     alert('Action required.');
   }
 }
 
-function main(username, password) {
+function main(username: string, password: string): void {
   $('#audio').css({
     left: 'unset',
     right: '0px',
@@ -315,18 +318,18 @@ function main(username, password) {
   getClue().after(state.links);
   const formArea = $('#formChat')[0];
   $(state.content).css({
-    position: 'relative',
     left: '295px',
+    position: 'relative',
     top: '-25px',
   });
   state.wordsList.css({
-    width: '70%',
-    'margin-top': '10px',
     'background-color': '#eee',
-    padding: '4px',
     'border-radius': '2px',
-    'list-style-position': 'inside',
     columns: '4',
+    'list-style-position': 'inside',
+    'margin-top': '10px',
+    padding: '4px',
+    width: '70%',
   });
   formArea.appendChild(state.content);
   $('#screenGame')[0].appendChild(state.wordsList[0]);
@@ -340,7 +343,8 @@ function main(username, password) {
     toggleWordsList();
     stillHere();
   }, 1000);
-  $('#boxChatInput').append($(`<div style="background-color:#eee; position:relative; top:-20px; padding:0 5px; width:auto; margin:0;">
+  $('#boxChatInput').append($(`<div style="background-color:#eee; position:relative;
+top:-20px; padding:0 5px; width:auto; margin:0;">
 <input id="guessEnabled" name="guessEnabled" style="width:6px; height:6px;" type="checkbox">
 <label for="guessEnabled" style="all: initial; padding-left:5px;">Enable auto-guesser</label><br>
 <label for="guessRate" style="all: initial; padding-right:5px;">Guess frequency (seconds):</label>
@@ -349,7 +353,8 @@ function main(username, password) {
   let lastGuess = 0;
   let lastTyped = 0;
   window.setInterval(() => {
-    if ($('#guessEnabled').is(':checked') && Date.now() - lastTyped >= 1500 && Date.now() - lastGuess >= 1000 * $('#guessRate').val()) {
+    if ($('#guessEnabled').is(':checked') && Date.now() - lastTyped >= 1500
+      && Date.now() - lastGuess >= 1000 * Number($('#guessRate').val())) {
       lastGuess = Date.now();
       makeGuess(getClueText());
     }
@@ -360,11 +365,11 @@ function main(username, password) {
   getInput().keyup(validateInput);
 }
 
-function fetchWords(username, password) {
+function fetchWords(username: string, password: string): void {
   GM.xmlHttpRequest({
     method: 'GET',
     url: 'https://skribbler.herokuapp.com/api/words',
-    onload(res) {
+    onload(res: any) {
       const response = JSON.parse(res.responseText);
       unsafeWindow.dictionary.standard = response.default;
       unsafeWindow.dictionary.confirmed = response.confirmed;
@@ -378,20 +383,14 @@ function fetchWords(username, password) {
   });
 }
 
-function getLoginDetails() {
-  const username = prompt('Please enter your skribbler username').toLowerCase();
-  const password = prompt('Please enter your skribbler password');
-  fetchWords(username, password);
-}
-
 $(document).ready(() => {
   if (typeof GM === 'undefined') { // polyfill GM4
-    GM = { // eslint-disable-line no-global-assign
-      xmlHttpRequest: GM_xmlhttpRequest, // eslint-disable-line camelcase
+    GM = {
+      xmlHttpRequest: GM_xmlhttpRequest,
     };
   }
-  let activate;
-  if (typeof admin !== 'undefined') {
+  let activate: any;
+  if (admin) {
     activate = $('<button>Activate skribbler (admin)</button>');
   } else activate = $('<button>Activate skribbler</button>');
   activate.css({
@@ -400,7 +399,7 @@ $(document).ready(() => {
   $('.loginPanelTitle').first().append(activate);
   activate.click(() => {
     activate.hide();
-    if (typeof admin !== 'undefined') {
+    if (admin) {
       getLoginDetails();
     } else {
       fetchWords('', '');

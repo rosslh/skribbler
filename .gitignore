@@ -1,5 +1,7 @@
-admin.js
+admin.ts
 admin.user.js
+src/tmp
+src/tmp/*
 
 # Logs
 logs
