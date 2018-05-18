@@ -8,9 +8,9 @@
 
 ### Installation
 * Make sure you have a userscript manager like Greasemonkey or Tampermonkey installed
-* Go here: https://raw.githubusercontent.com/rosslh/skribbler/master/skribbler.user.js
+* Go here: https://raw.githubusercontent.com/rosslh/skribbler/master/dist/skribbler.user.js
 * The script should start to install automatically. If not, please manually enter that url into your userscript manager.
-* If you are running an older browser and that script doesn't work, please try [this more compatible version](https://raw.githubusercontent.com/rosslh/skribbler/master/ES5.user.js).
+* If you are running an older browser and that script doesn't work, please try [this more compatible version](https://raw.githubusercontent.com/rosslh/skribbler/master/dist/ES5.user.js).
 
 ### Feedback
 * If you encounter any problems or have a feature request, please [submit an issue](https://github.com/rosslh/skribbler/issues/new)!
