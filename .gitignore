@@ -1,7 +1,6 @@
-admin.ts
-admin.user.js
-src/tmp
+admin.*
 src/tmp/*
+tooling/*
 
 # Logs
 logs
