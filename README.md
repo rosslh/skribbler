@@ -7,7 +7,7 @@
 6. Audio button is moved to the right so that it doesn't cover the countdown clock
 
 ### Installation
-* Make sure you have a userscript manager like Greasemonkey or Tampermonkey installed
+* Make sure you have a userscript manager like Violentmonkey or Greasemonkey installed
 * Go here: https://raw.githubusercontent.com/rosslh/skribbler/master/dist/skribbler.user.js
 * The script should start to install automatically. If not, please manually enter that url into your userscript manager.
 * If you are running an older browser and that script doesn't work, please try [this more compatible version](https://raw.githubusercontent.com/rosslh/skribbler/master/dist/ES5.user.js).
