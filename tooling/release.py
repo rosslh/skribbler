@@ -40,7 +40,7 @@ def incrementVersion(increment):
     content = ""
     with open('../src/metadata.ts', 'r') as f:
         content = f.read()
-    regex = re.compile(r'\/\/ @version ([0-9]\.[0-9]\.[0-9])')
+    regex = re.compile(r'\/\/ @version [0-9]\.[0-9]\.[0-9]')
     line = '// @version {}'.format(version)
     content = re.sub(regex, line, content)
     with open('../src/metadata.ts', 'w') as f:
