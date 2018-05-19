@@ -168,10 +168,13 @@ function constructWordsList(clue: string): void {
     const words = getWords(clue);
     for (const word of words) {
       const item = document.createElement("li");
+      const child = $(`<span onClick="submitGuess('${word}')">${word}</span>`);
+      child.css({cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted'});
       if (unsafeWindow.dictionary.confirmed.indexOf(word) > -1) {
-        item.innerHTML = `<strong>${word}</strong>`;
-      } else item.innerText = word;
-      newList[0].appendChild(item);
+        child.css({fontWeight: 'bold'});
+      }
+      $(item).append(child);
+      newList.append(item);
     }
   }
   state.wordsList.html(newList.html());
@@ -225,13 +228,11 @@ function findCloseWords(): void {
   });
 }
 
-function getInput(): any {
-  return $("#inputChat");
-}
+unsafeWindow.getInput = (): any => $("#inputChat");
 
 function validateInput(): void {
   const word = getClueText();
-  const input = getInput()[0];
+  const input = unsafeWindow.getInput()[0];
   const remaining = word.length - input.value.length;
   state.content.textContent = remaining;
   state.content.style.color = "unset";
@@ -304,16 +305,24 @@ function makeGuess(clue: string): void {
     } else {
       guess = words[Math.floor(Math.random() * words.length)];
     }
-    const submitProp = Object.keys(unsafeWindow.formChat).filter(
-      (k: string) => ~k.indexOf("jQuery") // tslint:disable-line no-bitwise
-    )[0];
-    window.setTimeout(() => {
-      if (getInput().val() === "" && validClue(clue, 1) && !wordGuessed()) {
-        getInput().val(guess);
-        unsafeWindow.formChat[submitProp].events.submit[0].handler();
-      }
-    }, Math.floor(Math.random() * (Number($("#guessRate").val()) / 3)));
+    guessWord(guess, clue);
   }
+}
+
+unsafeWindow.submitGuess = (guess: string): void => {
+  const submitProp = Object.keys(unsafeWindow.formChat).filter(
+    (k: string) => ~k.indexOf("jQuery") // tslint:disable-line no-bitwise
+  )[0];
+  unsafeWindow.getInput().val(guess);
+  unsafeWindow.formChat[submitProp].events.submit[0].handler();
+}
+
+function guessWord(guess: string, clue: string): void {
+  window.setTimeout(() => {
+    if (unsafeWindow.getInput().val() === "" && validClue(clue, 1) && !wordGuessed()) {
+      unsafeWindow.submitGuess(guess);
+    }
+  }, Math.floor(Math.random() * (Number($("#guessRate").val()) / 3)));
 }
 
 function toggleWordsList(): void {
@@ -370,7 +379,7 @@ function main(username: string, password: string): void {
   });
   formArea.appendChild(state.content);
   $("#screenGame")[0].appendChild(state.wordsList[0]);
-  const input = getInput()[0];
+  const input = unsafeWindow.getInput()[0];
   input.style.border = "3px solid orange";
   window.setInterval(() => {
     clueChanged();
@@ -401,10 +410,10 @@ top:-20px; padding:0 5px; width:auto; margin:0;">
       makeGuess(getClueText());
     }
   }, 500);
-  getInput().keyup(() => {
+  unsafeWindow.getInput().keyup(() => {
     lastTyped = Date.now();
   });
-  getInput().keyup(validateInput);
+  unsafeWindow.getInput().keyup(validateInput);
 }
 
 function fetchWords(username: string, password: string): void {

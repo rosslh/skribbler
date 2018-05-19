@@ -33,8 +33,11 @@ def incrementVersion(increment):
     version = re.search(regex, content).group(1).split('.')
     if increment == "major":
         version[0] = str(int(version[0]) + 1)
+        version[1] = "0"
+        version[2] = "0"
     elif increment == "minor":
         version[1] = str(int(version[1]) + 1)
+        version[2] = "0"
     else:
         version[2] = str(int(version[2]) + 1)
     version = '.'.join(version)

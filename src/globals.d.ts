@@ -5,6 +5,8 @@ declare let GM_xmlhttpRequest: any;
 interface UnsafeWindow {
   dictionary: Dictionary;
   formChat: any;
+  submitGuess: any;
+  getInput: any;
 }
 
 interface Dictionary {
