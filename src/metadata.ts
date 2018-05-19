@@ -2,7 +2,7 @@
 // @name Skribbler
 // @namespace https://rosshill.ca
 // @match *://skribbl.io/*
-// @version 2.4.0
+// @version 2.5.0
 // @author Ross Hill
 // @icon https://skribbl.io/res/favicon.png
 // @connect skribbler.herokuapp.com

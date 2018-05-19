@@ -1,6 +1,5 @@
 admin.*
 src/tmp/*
-tooling/*
 
 # Logs
 logs
