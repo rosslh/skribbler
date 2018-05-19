@@ -11,7 +11,7 @@
 // @namespace https://rosshill.ca
 // @require http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
 // @supportURL https://github.com/rosslh/skribbler/issues
-// @version 2.5.8
+// @version 2.5.9
 // ==/UserScript==
 
 // This code has been compiled and minified. The source code and build script can be found on Github.

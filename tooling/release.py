@@ -29,7 +29,7 @@ def incrementVersion(increment):
     content = ""
     with open('../package.json', 'r') as f:
         content = f.read()
-    regex = re.compile(r'"version": "([0-9]\.[0-9]\.[0-9])"')
+    regex = re.compile(r'"version": "(\d+\.\d+\.\d+)"')
     version = re.search(regex, content).group(1).split('.')
     if increment == "major":
         version[0] = str(int(version[0]) + 1)
@@ -46,7 +46,7 @@ def incrementVersion(increment):
     content = ""
     with open('../src/metadata.ts', 'r') as f:
         content = f.read()
-    regex = re.compile(r'\/\/ @version [0-9]\.[0-9]\.[0-9]')
+    regex = re.compile(r'\/\/ @version \d+\.\d+\.\d+')
     line = '// @version {}'.format(version)
     content = re.sub(regex, line, content)
     with open('../src/metadata.ts', 'w') as f:
