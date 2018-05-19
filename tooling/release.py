@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+# ./release.py -i increment -m "message"
+
 import argparse
 import re
 from git import Repo
