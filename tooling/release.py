@@ -1,7 +1,5 @@
-# takes -i/--increment as major, minor, or patch
-# increments version as required
-# take commit message -m/--message
-# commits and pushes to github
+#! /usr/bin/env python3
+
 import argparse
 import re
 from git import Repo
