@@ -5,11 +5,17 @@
 import argparse
 import re
 from git import Repo
+import subprocess
 
 
 def main(increment, message):
     incrementVersion(increment)
+    build()
     commitAndPush(message)
+
+
+def build():
+    subprocess.run("npm run build", shell=True)
 
 
 def commitAndPush(message):
