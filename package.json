@@ -1,39 +1,37 @@
 {
- "name": "Skribbler",
- "version": "2.5.10",
- "description": "",
- "main": "skribbler.user.js",
- "scripts": {
- "reset-tmp": "rm -rf src/tmp && mkdir src/tmp",
- "rm-tmp": "rm -rf src/tmp",
- "build": "npm run build-ES5 && npm run build-ES6 && npm run build-admin",
- "build-admin": "npm run reset-tmp && cat src/source.ts src/admin.ts > src/tmp/1.ts && tsc src/tmp/1.ts src/globals.d.ts -t ES2016 --outFile src/tmp/2.js && cat src/metadata.ts src/tmp/2.js > dist/admin.user.js && npm run rm-tmp",
- "build-ES6": "npm run reset-tmp && cat src/source.ts src/notAdmin.ts > src/tmp/1.ts && tsc src/tmp/1.ts src/globals.d.ts -t ES2016 --outFile src/tmp/2.js && cat src/metadata.ts src/tmp/2.js > dist/skribbler.user.js && npm run rm-tmp",
- "build-ES5-tidy": "npm run reset-tmp && cat src/source.ts src/notAdmin.ts > src/tmp/1.ts && tsc src/tmp/1.ts src/globals.d.ts -t ES5 --outFile src/tmp/2.js && cat src/metadata.ts src/tmp/2.js > dist/ES5.user.js && npm run rm-tmp",
- "build-ES5": "npm run reset-tmp && cat src/source.ts src/notAdmin.ts > src/tmp/1.ts && tsc src/tmp/1.ts src/globals.d.ts -t ES5 --outFile src/tmp/2.js && uglifyjs src/tmp/2.js -o src/tmp/2.js --compress --mangle --toplevel && npm run prepend-message && cat src/metadata.ts src/tmp/3.js > dist/ES5.user.js && npm run rm-tmp",
- "prepend-message": "(printf '%s\n// This code has been compiled and minified. The source code and build script can be found on Github.\n\n' && cat src/tmp/2.js) > src/tmp/3.js",
- "beautify": "prettier-tslint fix src/*.ts"
- },
- "repository": {
- "type": "git",
- "url": "git+https://github.com/rosslh/skribbler.git"
- },
- "author": "Ross Hill",
- "license": "MIT",
- "bugs": {
- "url": "https://github.com/rosslh/skribbler/issues"
- },
- "homepage": "https://github.com/rosslh/skribbler#readme",
- "devDependencies": {
- "@types/jquery": "^3.3.1",
- "gulp-cli": "^2.0.1",
- "gulp-typescript": "^4.0.2",
- "prettier": "^1.12.1",
- "prettier-tslint": "^0.4.0",
- "tslint": "^5.9.1",
- "tslint-config-airbnb-base": "^0.1.0",
- "tslint-config-prettier": "^1.12.0",
- "typescript": "^2.8.3",
- "uglify-js": "^3.3.20"
- }
+  "author":"Ross Hill",
+  "description":"",
+  "homepage":"https://github.com/rosslh/skribbler#readme",
+  "license":"MIT",
+  "main":"skribbler.user.js",
+  "name":"Skribbler",
+  "version":"2.6.0",
+  "bugs":{
+    "url":"https://github.com/rosslh/skribbler/issues"
+  },
+  "devDependencies":{
+    "@types/jquery":"^3.3.1",
+    "gulp-cli":"^2.0.1",
+    "gulp-typescript":"^4.0.2",
+    "prettier-tslint":"^0.4.0",
+    "prettier":"^1.12.1",
+    "tslint-config-airbnb-base":"^0.1.0",
+    "tslint-config-prettier":"^1.12.0",
+    "tslint":"^5.9.1",
+    "typescript":"^2.8.3",
+    "uglify-js":"^3.3.20"
+  },
+  "repository":{
+    "type":"git",
+    "url":"git+https://github.com/rosslh/skribbler.git"
+  },
+  "scripts":{
+    "beautify":"prettier-tslint fix src/*.ts",
+    "build":"tooling/build.py",
+    "buildWin":"tooling\\build.py",
+    "release":"tooling/release.py",
+    "releaseWin":"tooling\\release.py",
+    "reset-tmp":"rm -rf src/tmp && mkdir src/tmp",
+    "rm-tmp":"rm -rf src/tmp"
+  }
 }

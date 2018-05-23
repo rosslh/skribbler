@@ -11,5 +11,5 @@
 // @namespace https://rosshill.ca
 // @require http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
 // @supportURL https://github.com/rosslh/skribbler/issues
-// @version 2.5.10
+// @version 2.6.0
 // ==/UserScript==

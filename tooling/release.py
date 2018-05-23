@@ -6,7 +6,7 @@ import argparse
 import re
 from git import Repo
 import subprocess
-
+from build import main as build
 
 def main(increment, message):
     incrementVersion(increment)
@@ -14,12 +14,8 @@ def main(increment, message):
     commitAndPush(message)
 
 
-def build():
-    subprocess.run("npm run build", shell=True)
-
-
 def commitAndPush(message):
-    repo = Repo("../")
+    repo = Repo("./")
     repo.git.commit('-am', message, author='ross@rosshill.ca')
     repo.git.push('origin', 'master')
 
@@ -27,9 +23,9 @@ def commitAndPush(message):
 def incrementVersion(increment):
     # package.json
     content = ""
-    with open('../package.json', 'r') as f:
+    with open('./package.json', 'r') as f:
         content = f.read()
-    regex = re.compile(r'"version": "(\d+\.\d+\.\d+)"')
+    regex = re.compile(r'"version":"(\d+\.\d+\.\d+)"')
     version = re.search(regex, content).group(1).split('.')
     if increment == "major":
         version[0] = str(int(version[0]) + 1)
@@ -41,18 +37,18 @@ def incrementVersion(increment):
     else:
         version[2] = str(int(version[2]) + 1)
     version = '.'.join(version)
-    line = '"version": "{}"'.format(version)
+    line = '"version":"{}"'.format(version)
     content = re.sub(regex, line, content)
-    with open('../package.json', 'w') as f:
+    with open('./package.json', 'w') as f:
         f.write(content)
     # metadata
     content = ""
-    with open('../src/metadata.ts', 'r') as f:
+    with open('./src/metadata.ts', 'r') as f:
         content = f.read()
     regex = re.compile(r'\/\/ @version \d+\.\d+\.\d+')
     line = '// @version {}'.format(version)
     content = re.sub(regex, line, content)
-    with open('../src/metadata.ts', 'w') as f:
+    with open('./src/metadata.ts', 'w') as f:
         f.write(content)
 
 

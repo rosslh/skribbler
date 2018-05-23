@@ -11,9 +11,423 @@
 // @namespace https://rosshill.ca
 // @require http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
 // @supportURL https://github.com/rosslh/skribbler/issues
-// @version 2.5.10
+// @version 2.6.0
 // ==/UserScript==
-
-// This code has been compiled and minified. The source code and build script can be found on Github.
-
-var u={content:document.createElement("span"),links:document.createElement("strong"),pattern:"",prevAnswer:"",prevClue:"",wordsList:$(document.createElement("ul"))};function o(){$("#screenGame").is(":visible")&&$("html").scrollTop()<$("#screenGame").offset().top&&$("html, body").animate({scrollTop:$("#screenGame").offset().top},1e3)}function l(e,n){var t=$(".drawing").is(":visible"),i=e.replace(/_|-| /g,"").length,r=e.replace(/_/g,"").length;return!(!t||!(0<unsafeWindow.dictionary.oneOffWords.length||n<=i&&r!==e.length))||(t||(unsafeWindow.dictionary.validAnswers=[],unsafeWindow.dictionary.guessed=[],unsafeWindow.dictionary.oneOffWords=[]),!1)}function c(){return!!$('.guessedWord .info .name[style="color: rgb(0, 0, 255);"]').length&&(unsafeWindow.dictionary.validAnswers=[],unsafeWindow.dictionary.guessed=[],unsafeWindow.dictionary.oneOffWords=[],!0)}function r(e,n){for(var t=1;t<n.length+1;t++)if(e===n.substring(0,t-1)+n.substring(t,n.length))return!0;return!1}function s(e,n){if(e.length===n.length){for(var t=0,i=0;i<e.length;i++)if(e.charAt(i)!==n.charAt(i)&&(t+=1),1<t)return!1;return 1===t}return e.length===n.length-1?r(e,n):n.length===e.length-1&&r(n,e)}function f(e){return new RegExp("^"+e.replace(/_/g,"[^- ]")+"$")}function p(e,n,t){return e.filter(function(e){return e.length===t.length&&u.pattern.test(e)&&function(e,n){if(-1!==unsafeWindow.dictionary.guessed.indexOf(n))return!1;for(var t=0,i=unsafeWindow.dictionary.oneOffWords;t<i.length;t++)if(!s(n,i[t]))return!1;for(var r=0,o=e;r<o.length;r++)if(s(n,o[r]))return!1;return!0}(n,e)}).sort()}function a(e){var n=$(document.createElement("ul"));if(l(e,0)&&!c())for(var t=0,i=function(e){var n,t=unsafeWindow.dictionary;if(0===t.validAnswers.length){n=t.confirmed.slice();for(var i=0,r=t.standard;i<r.length;i++){var o=r[i];-1===n.indexOf(o)&&n.push(o)}}else n=t.validAnswers;u.pattern=f(e);for(var s=[],a=0,d=t.guessed;a<d.length;a++){var l=d[a];-1===t.oneOffWords.indexOf(l)&&s.push(l)}return c()?t.validAnswers=[]:t.validAnswers=p(n,s,e),t.validAnswers}(e);t<i.length;t++){var r=i[t],o=document.createElement("li"),s=$("<span onClick=\"submitGuess('"+r+"')\">"+r+"</span>");s.css({cursor:"pointer",textDecoration:"underline",textDecorationStyle:"dotted"}),-1<unsafeWindow.dictionary.confirmed.indexOf(r)&&s.css({fontWeight:"bold"}),$(o).append(s),n.append(o)}u.wordsList.html(n.html()),u.wordsList.css({width:$(document).width()-$("#containerChat").width()-40+"px"})}function d(){return $("#currentWord")}function g(){return d()[0].textContent.toLowerCase()}function h(){var e,n=void 0!==(e=$('.info .name[style="color: rgb(0, 0, 255);')[0])?e.innerText.split(" (")[0]:"";n&&$("#boxMessages p[style='color: rgb(0, 0, 0);'] b:contains("+n+":)").parent().find("span").not(".skribblerHandled").slice(-10).each(function(e,n){var t=n.innerText;-1===unsafeWindow.dictionary.guessed.indexOf(t)&&(unsafeWindow.dictionary.guessed.push(t),n.classList.add("skribblerHandled"),a(g()))})}function w(){var e=g(),n=unsafeWindow.getInput()[0],t=e.length-n.value.length;u.content.textContent=t,u.content.style.color="unset",0<t?(u.content.textContent="+"+u.content.textContent,u.content.style.color="green"):t<0&&(u.content.style.color="red"),u.pattern=f(e);var i=f(e.substring(0,n.value.length));u.pattern.test(n.value.toLowerCase())?n.style.border="3px solid green":i.test(n.value.toLowerCase())?n.style.border="3px solid orange":n.style.border="3px solid red"}function v(){var e,n=g();n!==u.prevClue&&(u.prevClue=n,w(),a(n),0<(e=n).length&&-1===e.indexOf("_")?(u.links.innerHTML="<a style='color: blue' target='_blank'\nhref='https://www.google.ca/search?tbm=isch&q="+e+"'>Images</a>, ",u.links.innerHTML+="<a style='color: blue' target='_blank'\nhref='https://www.google.ca/search?tbm=isch&tbs=itp:lineart&q="+e+"'>Line art</a>"):u.links.innerHTML="")}function b(e){if(l(e,1)&&!c()){for(var n=unsafeWindow.dictionary.validAnswers,t=[],i=0,r=n;i<r.length;i++){var o=r[i];-1<unsafeWindow.dictionary.confirmed.indexOf(o)&&t.push(o)}var s=void 0;s=0<t.length?t[Math.floor(Math.random()*t.length)]:n[Math.floor(Math.random()*n.length)],a=s,d=e,window.setTimeout(function(){""===unsafeWindow.getInput().val()&&l(d,1)&&!c()&&unsafeWindow.submitGuess(a)},Math.floor(Math.random()*(Number($("#guessRate").val())/3)))}var a,d}function m(i,r){$("#audio").css({left:"unset",right:"0px"}),window.setInterval(o,2e3),$(u.links).css({padding:"0 1em 0 1em"}),d().after(u.links);var e=$("#formChat")[0];$(u.content).css({left:"295px",position:"relative",top:"-25px"}),u.wordsList.css({"background-color":"#eee","border-radius":"2px",columns:"4","list-style-position":"inside","margin-top":"10px",padding:"4px",width:"70%"}),e.appendChild(u.content),$("#screenGame")[0].appendChild(u.wordsList[0]),unsafeWindow.getInput()[0].style.border="3px solid orange",window.setInterval(function(){var e,n,t;v(),e=i,n=r,"The word was: "===(t=$("#overlay .content .text")[0].innerText).slice(0,14)&&(t=t.slice(14))!==u.prevAnswer&&(u.prevAnswer=t,unsafeWindow.dictionary.oneOffWords=[],unsafeWindow.dictionary.guessed=[],unsafeWindow.dictionary.validAnswers=[],x&&y(t,e,n)),$("#boxMessages p[style='color: rgb(204, 204, 0); font-weight: bold;'] span:contains( is close!)").not(".skribblerHandled").slice(-10).each(function(e,n){var t=n.innerText.split("'")[1];-1===unsafeWindow.dictionary.oneOffWords.indexOf(t)&&(unsafeWindow.dictionary.oneOffWords.push(t),n.classList.add("skribblerHandled"),a(g()))}),h(),$(u.wordsList).is(":visible")?0!==u.wordsList.children().length&&!c()&&l(g(),0)||u.wordsList.hide():0<u.wordsList.children().length&&!c()&&l(g(),0)&&u.wordsList.show(),document.hidden&&$(".modal-dialog:contains(Are you still here?)").is(":visible")&&alert("Action required.")},1e3),$("#boxChatInput").append($('<div style="background-color:#eee; position:relative;\ntop:-20px; padding:0 5px; width:auto; margin:0;">\n<input id="guessEnabled" name="guessEnabled" style="width:6px; height:6px;" type="checkbox">\n<label for="guessEnabled" style="all: initial; padding-left:5px;">Enable auto-guesser</label><br>\n<label for="guessRate" style="all: initial; padding-right:5px;">Guess frequency (seconds):</label>\n<input id="guessRate" name="guessRate" type="number" step="0.5" min="1" value="1.5" style="width:4em;"></div>'));var n=0,t=0;window.setInterval(function(){$("#guessEnabled").is(":checked")&&1500<=Date.now()-t&&Date.now()-n>=1e3*Number($("#guessRate").val())&&(n=Date.now(),b(g()))},500),unsafeWindow.getInput().keyup(function(){t=Date.now()}),unsafeWindow.getInput().keyup(w)}unsafeWindow.dictionary={confirmed:[],guessed:[],oneOffWords:[],standard:[],validAnswers:[]},unsafeWindow.getInput=function(){return $("#inputChat")},unsafeWindow.submitGuess=function(e){var n=Object.keys(unsafeWindow.formChat).filter(function(e){return~e.indexOf("jQuery")})[0];unsafeWindow.getInput().val(e),unsafeWindow.formChat[n].events.submit[0].handler()},$(document).ready(function(){var e;"undefined"==typeof GM&&(GM={xmlHttpRequest:GM_xmlhttpRequest}),(e=x?$("<button>Activate skribbler (admin)</button>"):$("<button>Activate skribbler</button>")).css({"font-size":"0.6em"}),$(".loginPanelTitle").first().append(e),e.click(function(){var i,r;e.hide(),x?n():(r=i="",GM.xmlHttpRequest({method:"GET",url:"https://skribbler.herokuapp.com/api/words",onload:function(e){var n=JSON.parse(e.responseText);unsafeWindow.dictionary.standard=n.default,unsafeWindow.dictionary.confirmed=n.confirmed;var t=window.setInterval(function(){d()&&(clearInterval(t),m(i,r))},1e3)}}))})});var y=function(e,n,t){},n=function(){},x=!1;
+var state = {
+    content: document.createElement("span"),
+    links: document.createElement("strong"),
+    pattern: "",
+    prevAnswer: "",
+    prevClue: "",
+    wordsList: $(document.createElement("ul"))
+};
+unsafeWindow.dictionary = {
+    confirmed: [],
+    guessed: [],
+    oneOffWords: [],
+    standard: [],
+    validAnswers: []
+};
+function scrollDown() {
+    if ($("#screenGame").is(":visible") &&
+        $("html").scrollTop() < $("#screenGame").offset().top) {
+        $("html, body").animate({
+            scrollTop: $("#screenGame").offset().top
+        }, 1000);
+    }
+}
+function getPlayer() {
+    var nameElem = $('.info .name[style="color: rgb(0, 0, 255);')[0];
+    if (typeof nameElem !== "undefined") {
+        return nameElem.innerText.split(" (")[0];
+    }
+    return "";
+}
+function validClue(clue, minCharsFound) {
+    var someoneDrawing = $(".drawing").is(":visible");
+    var charsFound = clue.replace(/_|-| /g, "").length;
+    var noUnderscores = clue.replace(/_/g, "").length;
+    if (someoneDrawing &&
+        (unsafeWindow.dictionary.oneOffWords.length > 0 ||
+            (charsFound >= minCharsFound && noUnderscores !== clue.length))) {
+        return true;
+    }
+    if (!someoneDrawing) {
+        unsafeWindow.dictionary.validAnswers = [];
+        unsafeWindow.dictionary.guessed = [];
+        unsafeWindow.dictionary.oneOffWords = [];
+    }
+    return false;
+}
+function wordGuessed() {
+    if ($('.guessedWord .info .name[style="color: rgb(0, 0, 255);"]').length) {
+        unsafeWindow.dictionary.validAnswers = [];
+        unsafeWindow.dictionary.guessed = [];
+        unsafeWindow.dictionary.oneOffWords = [];
+        return true;
+    }
+    return false;
+}
+function missingChar(short, long) {
+    for (var i = 1; i < long.length + 1; i++) {
+        if (short === long.substring(0, i - 1) + long.substring(i, long.length)) {
+            return true;
+        }
+    }
+    return false;
+}
+function oneOff(listWord, guessedWord) {
+    if (listWord.length === guessedWord.length) {
+        var wrongLetters = 0;
+        for (var i = 0; i < listWord.length; i++) {
+            if (listWord.charAt(i) !== guessedWord.charAt(i)) {
+                wrongLetters += 1;
+            }
+            if (wrongLetters > 1) {
+                return false;
+            }
+        }
+        return wrongLetters === 1;
+    }
+    if (listWord.length === guessedWord.length - 1) {
+        return missingChar(listWord, guessedWord);
+    }
+    if (guessedWord.length === listWord.length - 1) {
+        return missingChar(guessedWord, listWord);
+    }
+    return false;
+}
+function checkPastGuesses(notOBO, word) {
+    if (unsafeWindow.dictionary.guessed.indexOf(word) !== -1) {
+        return false;
+    }
+    for (var _i = 0, _a = unsafeWindow.dictionary.oneOffWords; _i < _a.length; _i++) {
+        var oneOffWord = _a[_i];
+        if (!oneOff(word, oneOffWord)) {
+            return false;
+        }
+    }
+    for (var _b = 0, notOBO_1 = notOBO; _b < notOBO_1.length; _b++) {
+        var str = notOBO_1[_b];
+        if (oneOff(word, str)) {
+            return false;
+        }
+    }
+    return true;
+}
+function getRegex(clue) {
+    return new RegExp("^" + clue.replace(/_/g, "[^- ]") + "$");
+}
+function filterWords(words, notOBO, clue) {
+    return words
+        .filter(function (word) {
+        return word.length === clue.length &&
+            state.pattern.test(word) &&
+            checkPastGuesses(notOBO, word);
+    })
+        .sort();
+}
+function getWords(clue) {
+    var dict = unsafeWindow.dictionary;
+    var words;
+    if (dict.validAnswers.length === 0) {
+        // && dict.guessed.length === 0
+        words = dict.confirmed.slice();
+        for (var _i = 0, _a = dict.standard; _i < _a.length; _i++) {
+            var item = _a[_i];
+            if (words.indexOf(item) === -1) {
+                words.push(item);
+            }
+        }
+    }
+    else {
+        words = dict.validAnswers;
+    }
+    state.pattern = getRegex(clue);
+    var notOBO = [];
+    for (var _b = 0, _c = dict.guessed; _b < _c.length; _b++) {
+        var word = _c[_b];
+        if (dict.oneOffWords.indexOf(word) === -1) {
+            notOBO.push(word);
+        }
+    }
+    if (!wordGuessed()) {
+        dict.validAnswers = filterWords(words, notOBO, clue);
+    }
+    else {
+        dict.validAnswers = [];
+    }
+    return dict.validAnswers;
+}
+function constructWordsList(clue) {
+    var newList = $(document.createElement("ul"));
+    if (validClue(clue, 0) && !wordGuessed()) {
+        var words = getWords(clue);
+        for (var _i = 0, words_1 = words; _i < words_1.length; _i++) {
+            var word = words_1[_i];
+            var item = document.createElement("li");
+            var child = $("<span onClick=\"submitGuess('" + word + "')\">" + word + "</span>");
+            child.css({ cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted' });
+            if (unsafeWindow.dictionary.confirmed.indexOf(word) > -1) {
+                child.css({ fontWeight: 'bold' });
+            }
+            $(item).append(child);
+            newList.append(item);
+        }
+    }
+    state.wordsList.html(newList.html());
+    state.wordsList.css({
+        width: $(document).width() - $("#containerChat").width() - 40 + "px"
+    });
+}
+function getClue() {
+    return $("#currentWord");
+}
+function getClueText() {
+    return getClue()[0].textContent.toLowerCase();
+}
+function findGuessedWords() {
+    var player = getPlayer();
+    if (player) {
+        var guesses = $("#boxMessages p[style='color: rgb(0, 0, 0);'] b:contains(" + player + ":)")
+            .parent()
+            .find("span")
+            .not(".skribblerHandled")
+            .slice(-10);
+        guesses.each(function (i, elem) {
+            var guessText = elem.innerText;
+            if (unsafeWindow.dictionary.guessed.indexOf(guessText) === -1) {
+                unsafeWindow.dictionary.guessed.push(guessText);
+                elem.classList.add("skribblerHandled");
+                constructWordsList(getClueText());
+            }
+        });
+    }
+}
+function findCloseWords() {
+    var close = $("#boxMessages p[style='color: rgb(204, 204, 0); font-weight: bold;'] span:contains( is close!)")
+        .not(".skribblerHandled")
+        .slice(-10);
+    close.each(function (i, elem) {
+        var text = elem.innerText.split("'")[1];
+        if (unsafeWindow.dictionary.oneOffWords.indexOf(text) === -1) {
+            unsafeWindow.dictionary.oneOffWords.push(text);
+            elem.classList.add("skribblerHandled");
+            constructWordsList(getClueText());
+        }
+    });
+}
+unsafeWindow.getInput = function () { return $("#inputChat"); };
+function validateInput() {
+    var word = getClueText();
+    var input = unsafeWindow.getInput()[0];
+    var remaining = word.length - input.value.length;
+    state.content.textContent = remaining;
+    state.content.style.color = "unset";
+    if (remaining > 0) {
+        state.content.textContent = "+" + state.content.textContent;
+        state.content.style.color = "green";
+    }
+    else if (remaining < 0) {
+        state.content.style.color = "red";
+    }
+    state.pattern = getRegex(word);
+    var short = getRegex(word.substring(0, input.value.length));
+    if (state.pattern.test(input.value.toLowerCase())) {
+        input.style.border = "3px solid green";
+    }
+    else if (short.test(input.value.toLowerCase())) {
+        input.style.border = "3px solid orange";
+    }
+    else {
+        input.style.border = "3px solid red";
+    }
+}
+function showDrawLinks(clueText) {
+    if (clueText.length > 0 && clueText.indexOf("_") === -1) {
+        state.links.innerHTML = "<a style='color: blue' target='_blank'\nhref='https://www.google.ca/search?tbm=isch&q=" + clueText + "'>Images</a>, ";
+        state.links.innerHTML += "<a style='color: blue' target='_blank'\nhref='https://www.google.ca/search?tbm=isch&tbs=itp:lineart&q=" + clueText + "'>Line art</a>";
+    }
+    else {
+        state.links.innerHTML = "";
+    }
+}
+function clueChanged() {
+    var clue = getClueText();
+    if (clue !== state.prevClue) {
+        state.prevClue = clue;
+        validateInput();
+        constructWordsList(clue);
+        showDrawLinks(clue);
+    }
+}
+function answerShown(username, password) {
+    var answer = $("#overlay .content .text")[0].innerText;
+    if (answer.slice(0, 14) === "The word was: ") {
+        answer = answer.slice(14);
+        if (answer !== state.prevAnswer) {
+            state.prevAnswer = answer;
+            unsafeWindow.dictionary.oneOffWords = [];
+            unsafeWindow.dictionary.guessed = [];
+            unsafeWindow.dictionary.validAnswers = [];
+            if (admin) {
+                handleWord(answer, username, password);
+            }
+        }
+    }
+}
+function makeGuess(clue) {
+    if (validClue(clue, 1) && !wordGuessed()) {
+        var words = unsafeWindow.dictionary.validAnswers;
+        var confWords = [];
+        for (var _i = 0, words_2 = words; _i < words_2.length; _i++) {
+            var item = words_2[_i];
+            if (unsafeWindow.dictionary.confirmed.indexOf(item) > -1) {
+                confWords.push(item);
+            }
+        }
+        var guess = void 0;
+        if (confWords.length > 0) {
+            guess = confWords[Math.floor(Math.random() * confWords.length)];
+        }
+        else {
+            guess = words[Math.floor(Math.random() * words.length)];
+        }
+        guessWord(guess, clue);
+    }
+}
+unsafeWindow.submitGuess = function (guess) {
+    var submitProp = Object.keys(unsafeWindow.formChat).filter(function (k) { return ~k.indexOf("jQuery"); } // tslint:disable-line no-bitwise
+    )[0];
+    unsafeWindow.getInput().val(guess);
+    unsafeWindow.formChat[submitProp].events.submit[0].handler();
+};
+function guessWord(guess, clue) {
+    window.setTimeout(function () {
+        if (unsafeWindow.getInput().val() === "" && validClue(clue, 1) && !wordGuessed()) {
+            unsafeWindow.submitGuess(guess);
+        }
+    }, Math.floor(Math.random() * (Number($("#guessRate").val()) / 3)));
+}
+function toggleWordsList() {
+    if ($(state.wordsList).is(":visible")) {
+        if (state.wordsList.children().length === 0 ||
+            wordGuessed() ||
+            !validClue(getClueText(), 0)) {
+            state.wordsList.hide();
+        }
+    }
+    else if (state.wordsList.children().length > 0 &&
+        !wordGuessed() &&
+        validClue(getClueText(), 0)) {
+        state.wordsList.show();
+    }
+}
+function stillHere() {
+    if (document.hidden &&
+        $(".modal-dialog:contains(Are you still here?)").is(":visible")) {
+        alert("Action required.");
+    }
+}
+function main(username, password) {
+    $("#audio").css({
+        left: "unset",
+        right: "0px"
+    }); // so it doesn't cover timer
+    window.setInterval(scrollDown, 2000);
+    $(state.links).css({
+        padding: "0 1em 0 1em"
+    });
+    getClue().after(state.links);
+    var formArea = $("#formChat")[0];
+    $(state.content).css({
+        left: "295px",
+        position: "relative",
+        top: "-25px"
+    });
+    state.wordsList.css({
+        "background-color": "#eee",
+        "border-radius": "2px",
+        columns: "4",
+        "list-style-position": "inside",
+        "margin-top": "10px",
+        padding: "4px",
+        width: "70%"
+    });
+    formArea.appendChild(state.content);
+    $("#screenGame")[0].appendChild(state.wordsList[0]);
+    var input = unsafeWindow.getInput()[0];
+    input.style.border = "3px solid orange";
+    window.setInterval(function () {
+        clueChanged();
+        answerShown(username, password);
+        findCloseWords();
+        findGuessedWords();
+        toggleWordsList();
+        stillHere();
+    }, 1000);
+    $("#boxChatInput").append($("<div style=\"background-color:#eee; position:relative;\ntop:-20px; padding:0 5px; width:auto; margin:0;\">\n<input id=\"guessEnabled\" name=\"guessEnabled\" style=\"width:6px; height:6px;\" type=\"checkbox\">\n<label for=\"guessEnabled\" style=\"all: initial; padding-left:5px;\">Enable auto-guesser</label><br>\n<label for=\"guessRate\" style=\"all: initial; padding-right:5px;\">Guess frequency (seconds):</label>\n<input id=\"guessRate\" name=\"guessRate\" type=\"number\" step=\"0.5\" min=\"1\" value=\"1.5\" style=\"width:4em;\"></div>"));
+    var lastGuess = 0;
+    var lastTyped = 0;
+    window.setInterval(function () {
+        if ($("#guessEnabled").is(":checked") &&
+            Date.now() - lastTyped >= 1500 &&
+            Date.now() - lastGuess >= 1000 * Number($("#guessRate").val())) {
+            lastGuess = Date.now();
+            makeGuess(getClueText());
+        }
+    }, 500);
+    unsafeWindow.getInput().keyup(function () {
+        lastTyped = Date.now();
+    });
+    unsafeWindow.getInput().keyup(validateInput);
+}
+function fetchWords(username, password) {
+    GM.xmlHttpRequest({
+        method: "GET",
+        url: "https://skribbler.herokuapp.com/api/words",
+        onload: function (res) {
+            var response = JSON.parse(res.responseText);
+            unsafeWindow.dictionary.standard = response.default;
+            unsafeWindow.dictionary.confirmed = response.confirmed;
+            var run = window.setInterval(function () {
+                if (getClue()) {
+                    clearInterval(run);
+                    main(username, password);
+                }
+            }, 1000);
+        }
+    });
+}
+$(document).ready(function () {
+    if (typeof GM === "undefined") {
+        // polyfill GM4
+        GM = {
+            xmlHttpRequest: GM_xmlhttpRequest
+        };
+    }
+    var activate;
+    if (admin) {
+        activate = $("<button>Activate skribbler (admin)</button>");
+    }
+    else
+        activate = $("<button>Activate skribbler</button>");
+    activate.css({
+        "font-size": "0.6em"
+    });
+    $(".loginPanelTitle")
+        .first()
+        .append(activate);
+    activate.click(function () {
+        activate.hide();
+        if (admin) {
+            getLoginDetails();
+        }
+        else {
+            fetchWords("", "");
+        }
+    });
+});
+var handleWord = function (clue, username, password) { };
+var getLoginDetails = function () { };
+var admin = false;
