@@ -5,7 +5,7 @@
   "license":"MIT",
   "main":"skribbler.user.js",
   "name":"Skribbler",
-  "version":"2.6.0",
+  "version":"2.7.0",
   "bugs":{
     "url":"https://github.com/rosslh/skribbler/issues"
   },
