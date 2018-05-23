@@ -5,7 +5,7 @@
   "license":"MIT",
   "main":"skribbler.user.js",
   "name":"Skribbler",
-  "version":"2.6.1",
+  "version":"2.6.2",
   "bugs":{
     "url":"https://github.com/rosslh/skribbler/issues"
   },
@@ -30,8 +30,6 @@
     "build":"tooling/build.py",
     "buildWin":"tooling\\build.py",
     "release":"tooling/release.py",
-    "releaseWin":"tooling\\release.py",
-    "reset-tmp":"rm -rf src/tmp && mkdir src/tmp",
-    "rm-tmp":"rm -rf src/tmp"
+    "releaseWin":"tooling\\release.py"
   }
 }
