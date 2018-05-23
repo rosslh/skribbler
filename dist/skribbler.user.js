@@ -11,7 +11,7 @@
 // @namespace https://rosshill.ca
 // @require http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
 // @supportURL https://github.com/rosslh/skribbler/issues
-// @version 2.6.2
+// @version 2.6.3
 // ==/UserScript==
 const state = {
     content: document.createElement("span"),

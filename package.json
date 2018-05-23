@@ -1,11 +1,11 @@
 {
   "author":"Ross Hill",
-  "description":"",
+  "description":"a skribbl.io helper script",
   "homepage":"https://github.com/rosslh/skribbler#readme",
   "license":"MIT",
   "main":"skribbler.user.js",
   "name":"Skribbler",
-  "version":"2.6.2",
+  "version":"2.6.3",
   "bugs":{
     "url":"https://github.com/rosslh/skribbler/issues"
   },

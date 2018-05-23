@@ -9,14 +9,14 @@ import subprocess
 from build import main as build
 
 def main(increment, message):
-    incrementVersion(increment)
+    version = incrementVersion(increment)
     build()
-    commitAndPush(message)
+    commitAndPush(message, version)
 
 
-def commitAndPush(message):
+def commitAndPush(message, version):
     repo = Repo("./")
-    repo.git.commit('-am', message, author='ross@rosshill.ca')
+    repo.git.commit('-am', "{} - {}".format(version, message), author='ross@rosshill.ca')
     repo.git.push('origin', 'master')
 
 
@@ -50,6 +50,7 @@ def incrementVersion(increment):
     content = re.sub(regex, line, content)
     with open('./src/metadata.ts', 'w') as f:
         f.write(content)
+    return version
 
 
 parser = argparse.ArgumentParser(description='Process some integers.')
