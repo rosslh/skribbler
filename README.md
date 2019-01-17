@@ -1,4 +1,7 @@
 ### Features
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/rosslh/skribbler.svg)](https://greenkeeper.io/)
+
 1. Possible answers are shown below the game screen
 2. If enabled, the script will start automatically guessing
 3. The input field indicates whether your answer is valid by turning green or red
